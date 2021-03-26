@@ -1,7 +1,5 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const {Model} = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Message extends Model {
     /**
@@ -21,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   Message.init({
     idUSERS: DataTypes.INTEGER,
     content: DataTypes.STRING,
+    attachement: DataTypes.STRING,
     likes: DataTypes.INTEGER,
     date: DataTypes.DATE
   }, {
