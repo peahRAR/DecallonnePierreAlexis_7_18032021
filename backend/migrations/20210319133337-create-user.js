@@ -10,7 +10,7 @@ module.exports = {
       },
       email: {
         allowNull: false,
-        type: Sequelize.OBJECT
+        type: Sequelize.JSON
       },
       username: {
         allowNull: false,

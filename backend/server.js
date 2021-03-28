@@ -1,7 +1,7 @@
 // Importation
 const express = require('express');
 const apiRouter = require('./apiRouter').router;
-
+require('dotenv').config();
 
 // Intantiation du server
 const server = express();
