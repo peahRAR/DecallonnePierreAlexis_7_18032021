@@ -5,6 +5,9 @@ const models = require('../models');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 
+// Regex const
+const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const PASSWORD_REGEX = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{4,8}$/;
 
 // Cryptage
 function crypted(elem) {
@@ -16,10 +19,42 @@ function cryptedHmac(elem, key) {
     return crypto.createHmac("sha256", key).update(elem).digest("hex");
 }
 
-
 // Routes
 module.exports = {
-    register: function (req, res) {
+    register: async function (req, res) {
+
+        if (req.body.email == null || req.body.username == null || req.body.password == null) {
+            return res.status(400).json({ 'error': 'missing parameters' });
+        }
+
+        // Verification format username
+        if (req.body.username.length >= 21 || req.body.username.length <= 2) {
+            return res.status(400).json({ 'error': 'Wrong username (must be length 3 - 20)' });
+        }
+
+        // Verification si le nom d'utilisateur est disponible
+        try {
+            await models.User.findOne({ where: { "username": req.body.username } })
+            .then(function (userFound) {
+                if (userFound) {
+                    return res.status(400).json({ 'error': 'This username already used' });
+                }
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    
+        // Regex format Email
+        if (!EMAIL_REGEX.test(req.body.email)) {
+            return res.status(400).json({ 'error': 'Email is not valid' });
+        }
+
+
+        // Regex format Password
+        if (!PASSWORD_REGEX.test(req.body.password)) {
+            return res.status(400).json({ 'error': 'Password is not valid' });
+        }
+
         // Params
         let email = {
             // Mail Identifier permet de crypter l'e-mail de maniere unidirectionnel 
@@ -32,16 +67,8 @@ module.exports = {
         let isAdmin = false;
         let isConnect = true;
 
-        console.log(typeof password);
-
-        if (email == null || username == null || password == null) {
-            return res.status(400).json({ 'error': 'missing parameters' });
-        }
-
-        // TODO use reject
-
         // Find if not exist
-        models.User.findOne({ 'email.identifier': cryptedHmac(req.body.email, process.env.PASSWORDMAIL) })
+        models.User.findOne({where : {'email.mailIdentifier': cryptedHmac(req.body.email, process.env.PASSWORDMAIL) }})
             .then(function (userFound) {
                 if (!userFound) {
                     let user = models.User.create({
@@ -61,7 +88,7 @@ module.exports = {
                         ));
 
                 } else {
-                    return res.status(409).json({ 'error': 'user alredy exist' });
+                    return res.status(409).json({ 'error': 'An account already exists for this email' });
                 }
             })
             .catch(function (error) {
@@ -69,8 +96,8 @@ module.exports = {
             });
     },
 
-    login: function (req, res) {
-        models.User.findOne({ where : {"email.mailIdentifier" : cryptedHmac(req.body.email, process.env.PASSWORDMAIL) }})
+    login: async function (req, res) {
+        await models.User.findOne({ where: { "email.mailIdentifier": cryptedHmac(req.body.email, process.env.PASSWORDMAIL) } })
             .then(user => {
                 if (!user) {
                     return res.status(401).json({ error: 'User not found' });
