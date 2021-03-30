@@ -34,21 +34,23 @@ module.exports = {
 
         // Verification si le nom d'utilisateur est disponible
         try {
-            await models.User.findOne({ where: { "username": req.body.username } })
-            .then(function (userFound) {
-                if (userFound) {
-                    return res.status(400).json({ 'error': 'This username already used' });
-                }
-            })
+            const userFound = await models.User.findOne({ where: { "username": req.body.username}})
+            if (userFound) {
+                return res.status(400).json({
+                    'error': 'This username already used'
+                });
+            }
         } catch (error) {
-            console.log(error)
+            return res.status(500).json({
+                error
+            });
         }
-    
+
+
         // Regex format Email
         if (!EMAIL_REGEX.test(req.body.email)) {
             return res.status(400).json({ 'error': 'Email is not valid' });
         }
-
 
         // Regex format Password
         if (!PASSWORD_REGEX.test(req.body.password)) {
@@ -68,9 +70,9 @@ module.exports = {
         let isConnect = true;
 
         // Find if not exist
-        models.User.findOne({where : {'email.mailIdentifier': cryptedHmac(req.body.email, process.env.PASSWORDMAIL) }})
-            .then(function (userFound) {
-                if (!userFound) {
+        await models.User.findOne({ where: { 'email.mailIdentifier': cryptedHmac(req.body.email, process.env.PASSWORDMAIL) } })
+            .then(function (mailFound) {
+                if (!mailFound) {
                     let user = models.User.create({
                         email: email,
                         password: password,
@@ -83,16 +85,15 @@ module.exports = {
                         }))
                         .catch(error => res.status(500).json({
                             'error': 'cannot add user'
-                        },
-                            console.log(error)
-                        ));
+                        }));
 
                 } else {
                     return res.status(409).json({ 'error': 'An account already exists for this email' });
                 }
             })
             .catch(function (error) {
-                return res.status(500).json({ 'error': 'unable to verify user' })
+                console.log("erreur :" + error);
+                return res.status(500).json({ 'error': 'unable to verify user' });
             });
     },
 
