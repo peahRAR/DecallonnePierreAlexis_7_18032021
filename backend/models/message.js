@@ -13,14 +13,22 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: {
           allowNull: false
         }
+      });
+
+      models.Message.belongsTo(models.Message, {
+        foreignKey: {
+          allowNull: true
+        }
       })
     }
   };
   Message.init({
     idUSERS: DataTypes.INTEGER,
+    idParent: DataTypes.INTEGER,
     content: DataTypes.STRING,
     attachement: DataTypes.STRING,
     likes: DataTypes.INTEGER,
+    tags : DataTypes.JSON,
     date: DataTypes.DATE
   }, {
     sequelize,

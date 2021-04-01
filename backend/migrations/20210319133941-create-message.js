@@ -16,6 +16,14 @@ module.exports = {
           key: 'id'
         }
       },
+      idParent: {
+        allowNull: true,
+        type : Sequelize.INTEGER,
+        references : {
+          model: 'Messages',
+          key: 'id'
+        }
+      },
       content: {
         allowNull: false,
         type: Sequelize.STRING
@@ -31,6 +39,10 @@ module.exports = {
       date: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      tags :{
+        allowNull: false,
+        type: Sequelize.JSON
       },
       createdAt: {
         allowNull: false,
