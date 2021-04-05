@@ -19,6 +19,7 @@ function cryptedHmac(elem, key) {
     return crypto.createHmac("sha256", key).update(elem).digest("hex");
 }
 
+
 // Routes
 module.exports = {
     register: async function (req, res) {
@@ -67,7 +68,6 @@ module.exports = {
         let username = req.body.username;
         let password = bcrypt.hashSync(req.body.password, 10);
         let isAdmin = false;
-        let isConnect = true;
 
         // Find if not exist
         await models.User.findOne({ where: { 'email.mailIdentifier': cryptedHmac(req.body.email, process.env.PASSWORDMAIL) } })
@@ -77,8 +77,7 @@ module.exports = {
                         email: email,
                         password: password,
                         username: username,
-                        isAdmin: isAdmin,
-                        isConnect: isConnect
+                        isAdmin: isAdmin
                     })
                         .then(() => res.status(201).json({
                             'userId': user.id
@@ -112,7 +111,7 @@ module.exports = {
                             userId: user.id,
                             token: jwt.sign(
                                 { userId: user.id },
-                                `"${process.env.RDM_TOKEN}"`,
+                                process.env.RDM_TOKEN,
                                 { expiresIn: '24h' }
                             )
                         });

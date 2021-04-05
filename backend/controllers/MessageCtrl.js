@@ -1,18 +1,24 @@
 // Imports
-const Message = require('../models/message');
+const models= require('../models');
 
 // Routes
 module.exports = {
+    
+    // CREATE
     createMessage: function(req,res){
-
         // Params
         let content = req.body.content;
+        let userId = req.user.id;
+        let tags = req.body.tags
         // Verification que le content ne soit pas null
         if (content == null) {
             return res.status(400).json({ 'error' : 'need content'});
         }
-        const message = new Message({
-            content : req.body.content,
+        const message = models.Message.build({
+            content : content,
+            UserId : userId,
+            likes : 0,
+            tags : tags
             // ToDo attachement : image upload par le user possibilité format .gif
         });
         message.save()
@@ -23,13 +29,15 @@ module.exports = {
             res.status(400).json({error})
         })
     },
-
+    // READ
     listMessage: function(req,res){
         
     },
+    // UPDATE
     modifyMessage: function(req,res){
         
     },
+    // DELETE
     deleteMessage: function(req,res){
         
     }
