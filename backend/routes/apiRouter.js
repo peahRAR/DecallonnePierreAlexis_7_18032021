@@ -2,7 +2,9 @@
 const express = require('express');
 const userCtrl = require('../controllers/UsersCtrl');
 const messageCtrl = require('../controllers/MessageCtrl');
+
 const auth = require('../middleware/auth');
+const multer = require('../middleware/multer-config');
 
 // Router
 exports.router = (function(){
@@ -13,7 +15,7 @@ exports.router = (function(){
     apiRouter.route('/users/login/').post(userCtrl.login);
 
     // Message routes
-    apiRouter.route('/message/create/').post(auth, messageCtrl.createMessage);
+    apiRouter.route('/message/create/').post(auth, multer, messageCtrl.createMessage);
 
     return apiRouter;
 })();

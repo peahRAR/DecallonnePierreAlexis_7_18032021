@@ -10,6 +10,12 @@ module.exports = {
         let content = req.body.content;
         let userId = req.user.id;
         let tags = req.body.tags
+        let attachement;
+
+        if (req.file != undefined) {
+            attachement = `${req.protocol}://${req.get('host')}/images/${req.file.attachement}`;   
+        }
+        
         // Verification que le content ne soit pas null
         if (content == null) {
             return res.status(400).json({ 'error' : 'need content'});
@@ -18,8 +24,8 @@ module.exports = {
             content : content,
             UserId : userId,
             likes : 0,
-            tags : tags
-            // ToDo attachement : image upload par le user possibilité format .gif
+            tags : tags,
+            attachement : attachement
         });
         message.save()
         .then(()=>{
