@@ -1,23 +1,27 @@
 const multer = require('multer');
 
-
-const MIME_TYPES = {
-    'image/jpg': 'jpg',
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/gif': 'gif'
-}
+const allowedMimeType = ['image/jpg','image/jpeg','image/png','image/gif']
 
 //Indication de l'endroit où enregistrer les fichiers entrants et sous quel nom
 const storage = multer.diskStorage({
-    destination: (req,file,callback) => {
+    destination: (req, file, callback) => {
         callback(null, 'images');
     },
-    filename: (req,file,callback) => {
+    filename: (req, file, callback) => {
         const name = file.originalname.split(' ').join('_');
-        const extension = MIME_TYPES[file.minetype];
-        callback(null, name + Date.now() + '.' + extension);
+        callback(null, Date.now() + '_' + name);
     }
 });
 
-module.exports = multer({storage: storage}).single('image');
+//Verificaiton du fichier envoyé
+module.exports = multer({
+    storage: storage,
+    fileFilter: function (req, file, callback) {
+        if (!allowedMimeType.includes(file.mimetype)) {
+            req.fileValidationError = 'goes wrong on the minetype';
+            return callback(null, false, new Error('goes wrong on the minetype'));
+        }
+        console.log(file);
+        callback(null, true);
+    }
+}).single('attachement');

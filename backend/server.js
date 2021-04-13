@@ -16,7 +16,7 @@ server.get('/' , function (req, res){
     res.status(200).send('');
 });
 
-server.use('/connect/', apiRouter)
+server.use('/v1', apiRouter)
 
 
 server.listen(3000, function(){

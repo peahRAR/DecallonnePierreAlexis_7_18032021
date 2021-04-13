@@ -16,9 +16,9 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       models.Message.belongsTo(models.Message, {
-        foreignKey: {
-          allowNull: true
-        }
+        as :'message',
+        foreignKey: 'userId',
+        targetKey: 'id'
       })
     }
   };
@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     attachement: DataTypes.STRING,
     likes: DataTypes.INTEGER,
     tags : DataTypes.JSON,
+
   }, {
     sequelize,
     modelName: 'Message',
