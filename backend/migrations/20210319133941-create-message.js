@@ -19,6 +19,7 @@ module.exports = {
       idParent: {
         allowNull: true,
         type : Sequelize.INTEGER,
+        defaultValue : null,
         references : {
           model: 'Messages',
           key: 'id'
@@ -31,10 +32,6 @@ module.exports = {
       attachement: {
         allowNull: true,
         type: Sequelize.STRING
-      },
-      likes: {
-        allowNull: false,
-        type: Sequelize.INTEGER
       },
       tags :{
         allowNull: false,

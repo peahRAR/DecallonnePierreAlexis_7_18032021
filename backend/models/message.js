@@ -27,9 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     idParent: DataTypes.INTEGER,
     content: DataTypes.STRING,
     attachement: DataTypes.STRING,
-    likes: DataTypes.INTEGER,
     tags : DataTypes.JSON,
-
   }, {
     sequelize,
     modelName: 'Message',

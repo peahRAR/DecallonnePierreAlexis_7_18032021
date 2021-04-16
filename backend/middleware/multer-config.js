@@ -1,6 +1,7 @@
 const multer = require('multer');
 
 const allowedMimeType = ['image/jpg','image/jpeg','image/png','image/gif']
+console.log('Middleware Multer')
 
 //Indication de l'endroit où enregistrer les fichiers entrants et sous quel nom
 const storage = multer.diskStorage({
@@ -21,7 +22,6 @@ module.exports = multer({
             req.fileValidationError = 'goes wrong on the minetype';
             return callback(null, false, new Error('goes wrong on the minetype'));
         }
-        console.log(file);
         callback(null, true);
     }
 }).single('attachement');

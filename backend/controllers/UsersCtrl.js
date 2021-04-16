@@ -67,17 +67,17 @@ module.exports = {
         };
         let username = req.body.username;
         let password = bcrypt.hashSync(req.body.password, 10);
-        let isAdmin = false;
+        let isAdmin = req.body.isAdmin;
 
         // Find if not exist
         await models.User.findOne({ where: { 'email.mailIdentifier': cryptedHmac(req.body.email, process.env.PASSWORDMAIL) } })
             .then(function (mailFound) {
                 if (!mailFound) {
                     let user = models.User.create({
-                        email: email,
-                        password: password,
-                        username: username,
-                        isAdmin: isAdmin
+                        email,
+                        password,
+                        username,
+                        isAdmin
                     })
                         .then(() => res.status(201).json({
                             'userId': user.id

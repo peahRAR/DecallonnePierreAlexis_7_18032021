@@ -3,7 +3,7 @@ const models = require('../models');
 
 function pathOfFile(req) {
     if (req.file != undefined) {
-        return attachement = `/images/${req.file.originalname}`;
+        return attachement = `/images/${req.file.filename}`;
     }
 }
 
@@ -15,10 +15,9 @@ module.exports = {
         // Params
         let content = req.body.content;
         let userId = req.user.id;
-        let tags = req.body.tags
-        let attachement;
-
-
+        let tags = req.body.tags;
+        let idParent = req.body.idParent;
+        
         if (req.fileValidationError) {
             return res.end(req.fileValidationError);
         }
@@ -28,11 +27,11 @@ module.exports = {
             return res.status(400).json({ 'error': 'need content' });
         }
         const message = models.Message.build({
-            content: content,
+            content,
             UserId: userId,
-            likes: 0,
-            tags: tags,
-            attachement: pathOfFile(req)
+            tags,
+            attachement: pathOfFile(req),
+            idParent
         });
         message.save()
             .then(() => {
@@ -66,7 +65,7 @@ module.exports = {
                 res.status(404).json({"error" : "No message found"});
             }
         }).catch(function (err) {
-            console.log(err);
+            console.log(err)
             res.status(500).json({ "error": "invalid fields" });
         })
     },
@@ -74,7 +73,7 @@ module.exports = {
     // UPDATE
     modifyMessage: async function (req, res) {
         try {
-            console.log(req.body.content)
+            console.log('log  ==> ' +req.body.content)
             const message = await models.Message.findOne({ where : {"id" : req.params.id}});
             if (!message) {
                 res.status(404).json({"error" : "Message introuvable"})
@@ -91,6 +90,7 @@ module.exports = {
                 res.status(201).json({ message: 'modified message' })
             })
             .catch((error) => {
+                console.log(error);
                 res.status(400).json({ error })
             })
             
