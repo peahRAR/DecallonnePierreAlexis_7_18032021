@@ -19,7 +19,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-InputForm {
+.inputForm {
   height: 20px;
   width: 100%;
   background-color: white;
