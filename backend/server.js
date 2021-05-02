@@ -1,10 +1,14 @@
 // Importation
 const express = require('express');
 const apiRouter = require('./routes/apiRouter').router;
+const cors = require('cors');
+
+// Dotenv
 require('dotenv').config();
 
-// Intantiation du server
+// Instantiation du server
 const server = express();
+server.use(cors())
 
 // Configuration Body Parser
 server.use(express.urlencoded({extended: true}));
@@ -17,8 +21,7 @@ server.get('/' , function (req, res){
 });
 
 server.use('/v1', apiRouter)
-
-
+ 
 server.listen(3000, function(){
     console.log('Server en écoute');
 });

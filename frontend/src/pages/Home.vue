@@ -11,10 +11,15 @@
         <keep-alive>
           <component v-bind:is="component"></component>
         </keep-alive>
-        <button v-on:click="changeTarget()">
-          {{ buttonLabel }}
-        </button>
-        <!--doit etre switchable aussi -->
+        <hr class="separator" />
+        <div class="inline">
+          <p class="formOpen col-sm-4">
+            {{ openLabel }}
+          </p>
+          <p class="changeForm col-sm-4" v-on:click="changeTarget()">
+            {{ buttonLabel }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -22,32 +27,35 @@
 
 <script>
 // @ is an alias to /src
-import Form from "@/components/Form.vue";
+import Login from "@/components/Login.vue";
 import Register from "@/components/Register.vue";
 
 export default {
-  name: "Login",
+  name: "Home",
   components: {
-    Form,
+    Login,
     Register,
   },
   data() {
     return {
-      component: "Form",
+      component: "Login",
     };
   },
   computed: {
     buttonLabel() {
-      return this.component === "Form" ? "S'inscrire" : "Se connecter";
+      return this.component === "Login" ? "S'inscrire" : "Se connecter";
+    },
+    openLabel() {
+      return this.component === "Login" ? "Se connecter" : "S'inscrire";
     },
   },
   methods: {
     changeTarget() {
-      if (this.component === "Form") {
+      if (this.component === "Login") {
         this.component = "Register";
         return;
       }
-      this.component = 'Form';
+      this.component = "Login";
     },
   },
 };
@@ -82,11 +90,10 @@ export default {
   margin-top: 0.5rem;
 }
 
-.form{
-  width: 80%;
+.form {
+  width: 90%;
   margin: auto;
   display: flex;
-
   flex-direction: column;
 }
 
@@ -95,5 +102,25 @@ export default {
   border: solid 1px rgba(0, 0, 0, 0.091);
   border-radius: 2px;
   margin: 1rem auto;
+}
+
+.changeForm {
+  cursor: pointer;
+  &:hover {
+    color: rgb(11, 11, 130);
+    text-decoration: underline;
+  }
+}
+
+.formOpen{
+  color: rgb(11, 11, 130);
+}
+
+.inline {
+  display: flex;
+  justify-content: center;
+  p {
+    padding: 0 10px;
+  }
 }
 </style>
