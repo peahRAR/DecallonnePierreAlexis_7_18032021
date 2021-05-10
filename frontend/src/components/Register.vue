@@ -60,27 +60,18 @@ export default {
         username: null,
         password: null,
       },
-      passwordConfirmation: null,
-      redError: false,
-      valid: false,
     };
   },
   methods: {
-    checkPassword() {
-      this.redError = false;
-      this.valid = true;
-      if (this.password !== this.user.passwordConfirmation) {
-        this.redError = true;
-        this.valid = false;
-      }
-    },
     async signUp() {
-      console.log("SignUp");
       const request = new Request("http://localhost:3000/v1/users/register", {
         method: "POST",
         mode: "cors",
         cache: "default",
         body: JSON.stringify(this.user),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
       const res = await fetch(request);
