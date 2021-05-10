@@ -1,6 +1,6 @@
 <template>
   <div class="header container-fluid">
-    <div class="container">
+    <div class="container-fluid">
       <div class="row">
         <div class="logo-box col-xs-3">
           <img
@@ -18,7 +18,7 @@
 
         </div>
         <div class="nav">
-            
+
         </div>
       </div>
     </div>
@@ -46,6 +46,9 @@
 
 .logo-large{
     width: 100%;
+    height: 2.3rem;
+    margin:  auto 0;
+    margin-left: 1rem;
 }
 
 
@@ -55,8 +58,9 @@
   }
   .logo-light {
     display: flex;
-    max-height: 2.5rem;
-    margin: auto;
+    height: 2.1rem;
+    margin: auto 0;
+    margin-left: 1rem;
   }
 }
 </style>
