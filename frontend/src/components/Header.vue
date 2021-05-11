@@ -14,8 +14,8 @@
             alt="Logo large"
           />
         </div>
-        <div class="searchBar">
-
+        <div class="searchBar col-xs-7">
+          <SearchBarUser />
         </div>
         <div class="nav">
 
@@ -24,6 +24,19 @@
     </div>
   </div>
 </template>
+
+<script>
+// Imports
+import SearchBarUser from "@/components/SearchBarUser.vue";
+
+export default {
+  name: 'Header',
+  components : {
+    SearchBarUser
+  }
+}
+</script>
+
 
 <style scoped>
 .header {
@@ -49,6 +62,10 @@
     height: 2.3rem;
     margin:  auto 0;
     margin-left: 1rem;
+}
+
+.searchBar{
+  display: flex;
 }
 
 

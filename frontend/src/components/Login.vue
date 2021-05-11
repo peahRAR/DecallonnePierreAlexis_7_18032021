@@ -60,7 +60,6 @@ export default {
       this.data = data;
 
       // Gerer dans le back pour que le token soit retourner avec sa date d expiraiton
-      console.log(JSON.stringify(data))
       localStorage.setItem('token', JSON.stringify(data));
       document.location.href="/"
     },

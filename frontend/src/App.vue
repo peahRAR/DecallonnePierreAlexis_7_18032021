@@ -2,6 +2,17 @@
   <router-view />
 </template>
 
+<script>
+let tokenInformation = JSON.parse(localStorage.getItem("token"));
+if (tokenInformation) {
+  let timeOut = tokenInformation.expireDate - Date.now() ;
+  setTimeout(function () {
+    localStorage.removeItem("token");
+    document.location.href = "/login";
+  }, timeOut);
+}
+</script>
+
 
 <style lang="scss">
 #app {
