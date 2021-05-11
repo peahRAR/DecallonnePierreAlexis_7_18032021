@@ -43,6 +43,8 @@ $color-background: #254574;
 }
 
 .searchButton {
+  display: flex;
+  align-items: center;
   width: 40px;
   height: 35px;
   background: $color-background;
@@ -53,6 +55,12 @@ $color-background: #254574;
   font-size: 15px;
   border: none;
   border-left: 1px solid rgb(9, 7, 19);
+  &:hover {
+    background: #376cc2;
+  }
+  i{
+      margin-left: 3px;
+  }
 }
 
 /*Resize the wrap to see the search bar change!*/
@@ -62,10 +70,10 @@ $color-background: #254574;
 }
 
 @media only screen and (max-width: 320px) {
-    .searchTerm{
-      &::placeholder{
-          font-size: 10px;
-      }
+  .searchTerm {
+    &::placeholder {
+      font-size: 10px;
+    }
   }
 }
 
