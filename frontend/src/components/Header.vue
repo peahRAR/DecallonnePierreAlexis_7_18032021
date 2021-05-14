@@ -14,10 +14,10 @@
             alt="Logo large"
           />
         </div>
-        <div class="searchBar col-xs-7">
+        <div class="searchBar col-xs-8">
           <SearchBarUser />
         </div>
-        <div class="nav col-xs-2 flex-right">
+        <div class="nav col-xs-1 flex-right">
           <NavBar />
         </div>
       </div>
