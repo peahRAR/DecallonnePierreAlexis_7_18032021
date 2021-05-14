@@ -17,8 +17,8 @@
         <div class="searchBar col-xs-7">
           <SearchBarUser />
         </div>
-        <div class="nav">
-
+        <div class="nav col-xs-2 flex-right">
+          <NavBar />
         </div>
       </div>
     </div>
@@ -28,11 +28,13 @@
 <script>
 // Imports
 import SearchBarUser from "@/components/SearchBarUser.vue";
+import NavBar from "@/components/NavBar.vue"
 
 export default {
   name: 'Header',
   components : {
-    SearchBarUser
+    SearchBarUser,
+    NavBar
   }
 }
 </script>
@@ -42,6 +44,14 @@ export default {
 .header {
   background-color: #081f43;
   height: 3.2rem;
+  position: fixed;
+  top: 0;
+}
+
+.flex-right{
+  display: flex;
+  margin: auto;
+  margin-right: 0;
 }
 
 

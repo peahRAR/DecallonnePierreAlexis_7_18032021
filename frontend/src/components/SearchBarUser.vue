@@ -56,7 +56,7 @@ $color-background: #254574;
   border: none;
   border-left: 1px solid rgb(9, 7, 19);
   &:hover {
-    background: #376cc2;
+    background: #0c3c88;
   }
   i{
       margin-left: 3px;
