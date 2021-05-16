@@ -3,7 +3,7 @@ const models = require('../models');
 
 function pathOfFile(req) {
     if (req.file != undefined) {
-        return attachement = `/images/${req.file.filename}`;
+        return attachement = `public/images/${req.file.filename}`;
     }
 }
 

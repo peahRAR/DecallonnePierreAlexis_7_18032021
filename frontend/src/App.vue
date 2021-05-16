@@ -3,6 +3,7 @@
 </template>
 
 <script>
+
 let tokenInformation = JSON.parse(localStorage.getItem("token"));
 if (tokenInformation) {
   let timeOut = tokenInformation.expireDate - Date.now() ;

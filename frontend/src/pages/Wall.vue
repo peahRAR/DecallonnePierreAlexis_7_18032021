@@ -1,17 +1,18 @@
 <template>
   <div>
     <Header />
-    <div class="corps container">
-      <div class="row">
-        <div class="flux col-xs-12">
-          <!-- TODO :Component Ecrire un message  -->
-          <Message
-            v-for="message in allMessages"
-            v-bind:key="message"
-            :author="message.Users[0].username"
-            :date="message.updatedAt"
-          />
-        </div>
+    <div class="container">
+      <div class="feeds">
+        <!-- TODO :Component Ecrire un message  -->
+        <Message
+          v-for="message in allMessages"
+          v-bind:key="message"
+          :author="message.Users[0].username"
+          :date="message.updatedAt.toLocaleString().replace(',', ' ')"
+          :content="message.content"
+          :image="message.attachement"
+          :tag="message.tags"
+        />
       </div>
     </div>
   </div>
@@ -35,20 +36,26 @@ export default {
   },
   created() {
     const headers = { "Content-Type": "application/json" };
-    fetch("http://localhost:3000/v1/messages/", { headers })
+    fetch(`http://${process.env.VUE_APP_URL_BDD}/v1/messages/`, { headers })
       .then((response) => response.json())
-      .then((data) => (this.allMessages = data));
+      .then(
+        (data) =>
+          (this.allMessages = data.map((msg) => {
+            return {
+              ...msg,
+              updatedAt: new Date(msg.updatedAt),
+            };
+          }))
+      );
   },
 };
 </script>
 
 
 <style lang="scss" scoped>
-.corps {
+.feeds{
+  max-width: 700px;
+  margin: auto;
   margin-top: 4rem;
-  display: flex;
-  flex-direction: column;
 }
-
-
 </style>

@@ -58,8 +58,8 @@ $color-background: #254574;
   &:hover {
     background: #0c3c88;
   }
-  i{
-      margin-left: 3px;
+  i {
+    margin-left: 3px;
   }
 }
 
@@ -81,6 +81,7 @@ $color-background: #254574;
   .wrap {
     width: 85%;
     margin: auto;
+    margin-right: 0;
   }
 }
 
@@ -88,7 +89,6 @@ $color-background: #254574;
   .wrap {
     width: 50%;
     margin: auto;
-    margin-right: 0;
   }
 }
 
@@ -96,7 +96,6 @@ $color-background: #254574;
   .wrap {
     width: 35%;
     margin: auto;
-    margin-right: 0;
   }
 }
 </style>

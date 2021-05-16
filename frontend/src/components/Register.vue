@@ -64,7 +64,7 @@ export default {
   },
   methods: {
     async signUp() {
-      const request = new Request("http://localhost:3000/v1/users/register", {
+      const request = new Request(`http://${process.env.VUE_APP_URL_BDD}/v1/users/register`, {
         method: "POST",
         mode: "cors",
         cache: "default",
