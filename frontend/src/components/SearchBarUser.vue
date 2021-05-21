@@ -65,7 +65,7 @@ $color-background: #254574;
 
 /*Resize the wrap to see the search bar change!*/
 .wrap {
-  width: 100%;
+  max-width: 240px;
   margin: auto;
 }
 
@@ -89,6 +89,7 @@ $color-background: #254574;
   .wrap {
     width: 50%;
     margin: auto;
+    margin-right: 0;
   }
 }
 
@@ -96,6 +97,7 @@ $color-background: #254574;
   .wrap {
     width: 35%;
     margin: auto;
+    margin-right: 0;
   }
 }
 </style>

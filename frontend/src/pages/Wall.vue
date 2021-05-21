@@ -7,11 +7,13 @@
         <Message
           v-for="message in allMessages"
           v-bind:key="message"
-          :author="message.Users[0].username"
+          :author="message.user"
           :date="message.updatedAt.toLocaleString().replace(',', ' ')"
           :content="message.content"
           :image="message.attachement"
-          :tag="message.tags"
+          :tag="message.tag"
+          :idMessage="message.id"
+          :like="message.advices"
         />
       </div>
     </div>

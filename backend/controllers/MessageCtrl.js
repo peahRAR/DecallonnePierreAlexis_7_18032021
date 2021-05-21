@@ -17,7 +17,7 @@ module.exports = {
         let userId = req.user.id;
         let tags = req.body.tags;
         let idParent = req.body.idParent;
-        
+
         if (req.fileValidationError) {
             return res.end(req.fileValidationError);
         }
@@ -56,13 +56,44 @@ module.exports = {
             offset: (!isNaN(offset)) ? offset : null,
             include: [{
                 model: models.User,
-                attributes : ['username']
+                attributes: ['username']
             }]
         }).then(function (messages) {
             if (messages) {
-                res.status(200).json(messages);
+                res.status(200).json(messages.map(message => {
+                    let nbDislike = 0;
+                    let nbLike = 0;
+                    message.Users.forEach(element => {
+                        switch (element.Like.isLike) {
+                            case 0:
+                                nbDislike += 1
+                                break;
+
+                            case 1:
+                                nbLike += 1
+                                break;
+
+                            default:
+                                break;
+                        }
+                    });
+                    return {
+                        id: message.id,
+                        content: message.content,
+                        attachement: message.attachement,
+                        tag: message.tags,
+                        createAt: message.createAt,
+                        updatedAt: message.updatedAt,
+                        user: message.Users[0].username,
+                        // Compteur like & Dislike
+                        advices: {
+                            nbLike: nbLike,
+                            nbDislike: nbDislike
+                        }
+                    }
+                }))
             } else {
-                res.status(404).json({"error" : "No message found"});
+                res.status(404).json({ "error": "No message found" });
             }
         }).catch(function (err) {
             console.log(err)
@@ -73,12 +104,12 @@ module.exports = {
     // UPDATE
     modifyMessage: async function (req, res) {
         try {
-            console.log('log  ==> ' +req.body.content)
-            const message = await models.Message.findOne({ where : {"id" : req.params.id}});
+            console.log('log  ==> ' + req.body.content)
+            const message = await models.Message.findOne({ where: { "id": req.params.id } });
             if (!message) {
-                res.status(404).json({"error" : "Message introuvable"})
+                res.status(404).json({ "error": "Message introuvable" })
             }
-            
+
             let attachement = pathOfFile(req);
 
             message.content = req.body.content;
@@ -86,14 +117,14 @@ module.exports = {
             message.attachement = attachement;
 
             await message.save()
-            .then(() => {
-                res.status(201).json({ message: 'modified message' })
-            })
-            .catch((error) => {
-                console.log(error);
-                res.status(400).json({ error })
-            })
-            
+                .then(() => {
+                    res.status(201).json({ message: 'modified message' })
+                })
+                .catch((error) => {
+                    console.log(error);
+                    res.status(400).json({ error })
+                })
+
         } catch (error) {
             console.log(error);
         }
@@ -104,12 +135,12 @@ module.exports = {
     deleteMessage: function (req, res) {
         let id = req.params.id;
         models.Message.destroy({
-            where: {id : id}
-        }).then(()=> {
+            where: { id: id }
+        }).then(() => {
             res.sendStatus(204);
-        }).catch(function(err){
+        }).catch(function (err) {
             console.log(err);
-            res.status((500)).json({'error' :'cannot delete this message'})
+            res.status((500)).json({ 'error': 'cannot delete this message' })
         })
     }
 }

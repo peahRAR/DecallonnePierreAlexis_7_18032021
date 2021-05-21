@@ -72,6 +72,8 @@ export default {
     height: 2.3rem;
     margin:  auto 0;
     margin-left: 1rem;
+    max-width: 240px;
+    transform: scale(0.85);
 }
 
 .searchBar{
