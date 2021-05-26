@@ -24,5 +24,6 @@ exports.router = (function () {
 
     // Like & Dislike
     apiRouter.route('/messages/:messageId/:type').post(auth, likesCtrl.likePost);
+    apiRouter.route('/messages/:messageId/delete').delete(auth, likesCtrl.deleteLike);
     return apiRouter;
 })();

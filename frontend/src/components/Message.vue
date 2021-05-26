@@ -22,14 +22,16 @@
         styleIcon="far fa-thumbs-up"
         color="blue"
         value="1"
-        :likeCounter="like.nbLike"
+        :likeCounter="countLike"
+        :actif="userLike"
       />
       <LikeButton
         v-on:likeAction="addAdvice"
         styleIcon="far fa-thumbs-down"
         color="red"
         value="0"
-        :likeCounter="like.nbDislike"
+        :likeCounter="countDislike"
+        :actif="userDislike"
       />
     </div>
   </div>
@@ -53,13 +55,38 @@ export default {
     idMessage: Number,
     like: Object,
   },
+  data() {
+    return {
+      userLike: this.like.userReaction.like,
+      userDislike: this.like.userReaction.dislike,
+      countLike: this.like.nbLike,
+      countDislike: this.like.nbDislike,
+    };
+  },
   computed: {
     imageUrl() {
       return `http://${process.env.VUE_APP_URL_BDD}${this.image}`;
     },
   },
   methods: {
+    // Methode suppression de Like
+    deleteAdvice: function () {
+      let token = localStorage.getItem("token");
+      token = JSON.parse(token);
+      token = token.token;
+      const headers = {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+      };
+      fetch(
+        `http://${process.env.VUE_APP_URL_BDD}/v1/messages/${this.idMessage}/delete`,
+        { method: "delete", headers }
+      ).then((response) => response.json());
+    },
+
+    //logique du system de like
     addAdvice: function (value) {
+      // API
       let token = localStorage.getItem("token");
       token = JSON.parse(token);
       token = token.token;
@@ -71,6 +98,62 @@ export default {
         `http://${process.env.VUE_APP_URL_BDD}/v1/messages/${this.idMessage}/${value.value}`,
         { method: "POST", headers }
       ).then((response) => response.json());
+
+      // Gestion suppression d'un like ou dislike
+      const likeValue = +value.value;
+
+      // Premier avis
+      // Like
+      if (likeValue === 1) {
+        // Si déja like et veux supprimer son avis
+        if (this.userLike) {
+          this.countLike -= 1;
+          this.userLike = false;
+          this.userDislike = false;
+          this.deleteAdvice();
+        }
+        // Si dislike et change d'avis
+        else if (this.userDislike) {
+          this.countDislike -= 1;
+          this.countLike += 1;
+          this.userLike = true;
+          this.userDislike = false;
+          console.log("mutation dislike en like");
+        }
+        // Premier avis
+        else {
+          this.countLike += 1;
+          this.userLike = true;
+          this.userDislike = false;
+          console.log("Like");
+        }
+      }
+
+      // Dislike
+      if (likeValue === 0) {
+        // Si deja Dislike et veux supprimer son avis
+        if (this.userDislike) {
+          this.countDislike -= 1;
+          this.userLike = false;
+          this.userDislike = false;
+          this.deleteAdvice();
+        }
+        // Si like et change d'avis
+        else if (this.userLike) {
+          this.userDislike = true;
+          this.userLike = false;
+          this.countLike -= 1;
+          this.countDislike += 1;
+          console.log("mutation like en dislike");
+        }
+        // Premier avis
+        else {
+          this.countDislike += 1;
+          this.userDislike = true;
+          this.userLike = false;
+          console.log("dislike");
+        }
+      }
     },
   },
 };
@@ -88,6 +171,7 @@ $border: 1px solid #091f4317;
   border-radius: 5px;
   background: inherit;
   overflow: hidden;
+  margin-bottom: 2rem;
   &::before {
     content: "";
     position: absolute;
@@ -168,7 +252,7 @@ $border: 1px solid #091f4317;
   font-size: 0.75rem;
   padding: 0.3rem 0.8rem;
   margin-right: 15px;
-    font-weight: bold;
+  font-weight: bold;
   text-transform: capitalize;
   background-color: $dark-blue;
   color: white;
@@ -176,7 +260,6 @@ $border: 1px solid #091f4317;
     -8px -8px 12px 0 rgba(149, 142, 216, 0.057);
   border-radius: 50px;
 }
-
 
 .likeBar {
   display: flex;

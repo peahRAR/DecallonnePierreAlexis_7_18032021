@@ -1,5 +1,5 @@
 <template>
-  <a v-on:click="$emit('likeAction',{value})" class="flex boxBtn">
+  <a  v-on:click="$emit('likeAction',{value})" class="flex boxBtn" :class="{active : actif}">
     <p :class="`${styleIcon} ${color}`" class="icon"></p>
     <p :class="color +' number'">{{ likeCounter }}</p>
   </a>
@@ -13,7 +13,8 @@ export default {
     color: String,
     value: String,
     likeCounter: Number,
-
+    actif: Boolean,
+    classActive:String
   },
 };
 </script>
@@ -51,6 +52,10 @@ export default {
       color: rgba(255, 0, 0, 1);
     }
   }
+}
+
+.active{
+    background-color: #0f0a4614;
 }
 
 .number{

@@ -56,7 +56,8 @@ module.exports = {
             offset: (!isNaN(offset)) ? offset : null,
             include: [{
                 model: models.User,
-                attributes: ['username']
+                attributes: ['username'],
+                required: false
             }]
         }).then(function (messages) {
             if (messages) {
@@ -67,10 +68,14 @@ module.exports = {
                         switch (element.Like.isLike) {
                             case 0:
                                 nbDislike += 1
+                                like = false
+                                dislike = true
                                 break;
 
                             case 1:
                                 nbLike += 1
+                                like = true
+                                dislike= false
                                 break;
 
                             default:
@@ -85,10 +90,16 @@ module.exports = {
                         createAt: message.createAt,
                         updatedAt: message.updatedAt,
                         user: message.Users[0].username,
+                        message: message,
+                        
                         // Compteur like & Dislike
                         advices: {
                             nbLike: nbLike,
-                            nbDislike: nbDislike
+                            nbDislike: nbDislike,
+                            userReaction: {
+                                like,
+                                dislike
+                            }
                         }
                     }
                 }))
@@ -104,7 +115,6 @@ module.exports = {
     // UPDATE
     modifyMessage: async function (req, res) {
         try {
-            console.log('log  ==> ' + req.body.content)
             const message = await models.Message.findOne({ where: { "id": req.params.id } });
             if (!message) {
                 res.status(404).json({ "error": "Message introuvable" })
