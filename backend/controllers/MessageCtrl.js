@@ -30,7 +30,7 @@ module.exports = {
             content,
             UserId: userId,
             tags,
-            attachement: pathOfFile(req),
+            attachement: req.attachement,
             idParent
         });
         message.save()
@@ -57,15 +57,15 @@ module.exports = {
             include: [{
                 model: models.User,
                 attributes: ['username'],
-                required: false
-            }]
+                
+            },'like']
         }).then(function (messages) {
             if (messages) {
                 res.status(200).json(messages.map(message => {
                     let nbDislike = 0;
                     let nbLike = 0;
-                    message.Users.forEach(element => {
-                        switch (element.Like.isLike) {
+                    message.like.forEach(element => {
+                        switch (element.isLike) {
                             case 0:
                                 nbDislike += 1
                                 like = false
@@ -79,6 +79,8 @@ module.exports = {
                                 break;
 
                             default:
+                                like=false
+                                dislike= false
                                 break;
                         }
                     });
@@ -89,9 +91,7 @@ module.exports = {
                         tag: message.tags,
                         createAt: message.createAt,
                         updatedAt: message.updatedAt,
-                        user: message.Users[0].username,
-                        message: message,
-                        
+                        user: message.User.username,
                         // Compteur like & Dislike
                         advices: {
                             nbLike: nbLike,

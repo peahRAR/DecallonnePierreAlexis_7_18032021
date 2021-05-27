@@ -20,6 +20,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'userId',
         targetKey: 'id'
       })
+
+      models.Message.hasMany(models.Like, {
+        as: 'like',
+        foreignKey: {name:'messageId',
+        allowNull: true}
+      })
     }
   };
   Message.init({
