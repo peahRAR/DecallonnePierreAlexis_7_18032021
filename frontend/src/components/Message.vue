@@ -14,7 +14,7 @@
       <p class="content">{{ content }}</p>
     </div>
     <div class="img-card">
-      <img :src="imageUrl" />
+      <img :src="imageUrl" v-if="image" />
     </div>
     <div class="likeBar">
       <LikeButton
@@ -81,7 +81,7 @@ export default {
       fetch(
         `http://${process.env.VUE_APP_URL_BDD}/v1/messages/${this.idMessage}/delete`,
         { method: "delete", headers }
-      ).then((response) => response.json());
+      )
     },
 
     //logique du system de like

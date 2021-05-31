@@ -46,6 +46,7 @@ export default {
   height: 3.2rem;
   position: fixed;
   top: 0;
+  z-index: 3;
 }
 
 .flex-right{

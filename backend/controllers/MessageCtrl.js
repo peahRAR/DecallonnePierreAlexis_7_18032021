@@ -3,7 +3,7 @@ const models = require('../models');
 
 function pathOfFile(req) {
     if (req.file != undefined) {
-        return attachement = `public/images/${req.file.filename}`;
+        return attachement = `/images/${req.file.filename}`;
     }
 }
 
@@ -30,7 +30,7 @@ module.exports = {
             content,
             UserId: userId,
             tags,
-            attachement: req.attachement,
+            attachement: pathOfFile(req),
             idParent
         });
         message.save()
@@ -64,6 +64,8 @@ module.exports = {
                 res.status(200).json(messages.map(message => {
                     let nbDislike = 0;
                     let nbLike = 0;
+                    let like = false;
+                    let dislike= false;
                     message.like.forEach(element => {
                         switch (element.isLike) {
                             case 0:

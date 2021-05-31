@@ -35,8 +35,6 @@ module.exports = {
     },
     deleteLike: function (req, res){
         console.log("System de suppression de like");
-        console.log(req.params.messageId);
-        console.log(req.user.id);
 
         const messageId = parseInt(req.params.messageId);
         const userId = parseInt(req.user.id);
@@ -46,7 +44,6 @@ module.exports = {
         }).then(() => {
             res.sendStatus(204);
         }).catch(function (err){
-            console.log(err);
             res.status((500)).json({ 'error': 'cannot delete this advice'})
         })
     }

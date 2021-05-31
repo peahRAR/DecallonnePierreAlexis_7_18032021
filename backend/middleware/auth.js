@@ -16,6 +16,7 @@ module.exports = (req, res, next) => {
             models.User.findByPk(userId)
             .then((user)=>{
                 req.user = user
+                console.log("rentre dans le then du auth");
                 next()
             })
         }
