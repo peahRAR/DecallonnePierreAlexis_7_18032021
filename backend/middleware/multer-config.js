@@ -1,5 +1,6 @@
 const multer = require('multer');
 
+console.log("multer")
 const allowedMimeType = ['image/jpg','image/jpeg','image/png','image/gif']
 
 

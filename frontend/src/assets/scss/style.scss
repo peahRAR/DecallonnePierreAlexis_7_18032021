@@ -44,6 +44,11 @@ table {
 	border-spacing: 0;
 }
 
+/*Eviter debordement horizontal*/ 
+body{
+  overflow-x: hidden;
+}
+
 
 /* GRID SYSTEM */
 /* CONTAINER */

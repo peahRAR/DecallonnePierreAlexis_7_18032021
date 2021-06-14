@@ -6,7 +6,9 @@
         <p class="date">{{ date }}</p>
       </div>
       <div class="flex-right">
-        <p class="tag"><i class="icon-tag fas fa-tag"></i>{{ tag }}</p>
+        <p v-if="tag" class="tag">
+          <i class="icon-tag fas fa-tag"></i>{{ tag }}
+        </p>
         <ul class="option fas fa-ellipsis-h"></ul>
       </div>
     </div>
@@ -18,7 +20,7 @@
     </div>
     <div class="likeBar">
       <LikeButton
-        v-on:likeAction="addAdvice"
+        v-on:likeAction="advice"
         styleIcon="far fa-thumbs-up"
         color="blue"
         value="1"
@@ -26,7 +28,7 @@
         :actif="userLike"
       />
       <LikeButton
-        v-on:likeAction="addAdvice"
+        v-on:likeAction="advice"
         styleIcon="far fa-thumbs-down"
         color="red"
         value="0"
@@ -81,12 +83,10 @@ export default {
       fetch(
         `http://${process.env.VUE_APP_URL_BDD}/v1/messages/${this.idMessage}/delete`,
         { method: "delete", headers }
-      )
+      );
     },
 
-    //logique du system de like
     addAdvice: function (value) {
-      // API
       let token = localStorage.getItem("token");
       token = JSON.parse(token);
       token = token.token;
@@ -95,10 +95,13 @@ export default {
         "Content-Type": "application/json",
       };
       fetch(
-        `http://${process.env.VUE_APP_URL_BDD}/v1/messages/${this.idMessage}/${value.value}`,
+        `http://${process.env.VUE_APP_URL_BDD}/v1/messages/${this.idMessage}/${value}`,
         { method: "POST", headers }
       ).then((response) => response.json());
+    },
 
+    //logique du system de like
+    advice: function (value) {
       // Gestion suppression d'un like ou dislike
       const likeValue = +value.value;
 
@@ -118,14 +121,14 @@ export default {
           this.countLike += 1;
           this.userLike = true;
           this.userDislike = false;
-          console.log("mutation dislike en like");
+          this.addAdvice(likeValue);
         }
         // Premier avis
         else {
           this.countLike += 1;
           this.userLike = true;
           this.userDislike = false;
-          console.log("Like");
+          this.addAdvice(likeValue);
         }
       }
 
@@ -144,14 +147,14 @@ export default {
           this.userLike = false;
           this.countLike -= 1;
           this.countDislike += 1;
-          console.log("mutation like en dislike");
+          this.addAdvice(likeValue);
         }
         // Premier avis
         else {
           this.countDislike += 1;
           this.userDislike = true;
           this.userLike = false;
-          console.log("dislike");
+          this.addAdvice(likeValue);
         }
       }
     },
@@ -232,6 +235,7 @@ $border: 1px solid #091f4317;
   position: relative;
   display: inline-block;
   img {
+    display: block;
     width: 100%;
     object-fit: contain;
   }

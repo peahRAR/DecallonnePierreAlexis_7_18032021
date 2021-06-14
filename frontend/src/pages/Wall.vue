@@ -2,23 +2,22 @@
   <div>
     <Header />
     <div class="container">
-      <div class="editor">
-        <Editor
-          api-key="lqatqo1ukanem8d2hrsh08axudcxncolmul6vtfaiwu0er4e"
-          :init="{
-            height: 200,
-            menubar: false,
-            plugins: [
-              'advlist autolink lists link image charmap print preview anchor',
-              'searchreplace visualblocks code fullscreen',
-              'insertdatetime media table paste code help wordcount',
-            ],
-            toolbar:
-              'formatselect | bold italic backcolor | \
-           alignleft aligncenter alignright alignjustify | \
-           bullist numlist outdent indent | removeformat | help',
-          }"
-        />
+      <div class="editor container-fluid">
+        <div class="container">
+          <FakeInput
+            :user="userInfo.username"
+            type="button"
+            class="btn"
+            @click="showModal"
+          />
+
+          <Modal
+          v-show="isModalVisible"
+          @close="closeModal"
+          />
+
+        </div>
+        <hr class="separator space-bottom" />
       </div>
       <div class="feeds">
         <!-- TODO :Component Ecrire un message  -->
@@ -41,20 +40,32 @@
 <script>
 // Imports
 import Header from "@/components/Header.vue";
-import Editor from "@tinymce/tinymce-vue";
+import FakeInput from "@/components/FakeInput.vue";
 import Message from "@/components/Message.vue";
+import Modal from '../components/Modal.vue';
 
 export default {
   name: "wall",
   components: {
     Header,
-    Editor,
+    FakeInput,
     Message,
+    Modal,
   },
   data() {
     return {
       allMessages: null,
+      userInfo: JSON.parse(localStorage.getItem("token")),
+      isModalVisible: false,
     };
+  },
+  methods: {
+    showModal(){
+      this.isModalVisible = true;
+    },
+    closeModal(){
+      this.isModalVisible = false;
+    }
   },
   created() {
     const headers = { "Content-Type": "application/json" };
@@ -78,17 +89,19 @@ export default {
 .feeds {
   max-width: 700px;
   margin: auto;
-  margin-top: 20rem;
+  margin-top: 13rem;
 }
 
 .editor {
   position: fixed;
+  height: 100px;
   right: 0;
   left: 0;
   top: 0;
-  margin: 4rem 0 0 0;
-  z-index: 3;
-  padding-bottom: 50px;
+  margin: auto;
+  margin-top: 50px;
+  z-index: 2;
+  padding-top: 25px;
   background: rgb(255, 255, 255);
   background: linear-gradient(
     180deg,
@@ -96,5 +109,11 @@ export default {
     rgba(255, 255, 255, 1) 86%,
     rgba(255, 255, 255, 0) 100%
   );
+}
+
+.space-bottom {
+  max-width: 700px;
+  margin-bottom: 25px;
+  margin-top: 2rem;
 }
 </style>

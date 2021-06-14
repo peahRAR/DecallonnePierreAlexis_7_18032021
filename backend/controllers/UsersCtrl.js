@@ -109,6 +109,8 @@ module.exports = {
                         }
                         res.status(200).json({
                             userId: user.id,
+                            username: user.username,
+                            isAdmin : user.isAdmin,
                             expireDate : (Date.now() + 86400000),
                             token: jwt.sign(
                                 { userId: user.id },

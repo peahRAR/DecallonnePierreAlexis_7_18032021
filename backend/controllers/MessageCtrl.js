@@ -26,6 +26,7 @@ module.exports = {
         if (content == null) {
             return res.status(400).json({ 'error': 'need content' });
         }
+        
         const message = models.Message.build({
             content,
             UserId: userId,
