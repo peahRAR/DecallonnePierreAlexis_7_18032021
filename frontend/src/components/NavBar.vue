@@ -14,8 +14,7 @@
         <ul id="menu" class="col-xs-4">
           <li><i class="fas fa-times"></i>Suppression du compte</li>
           <li><i class="fas fa-users-cog"></i>Administration</li>
-          <li><i class="fas fa-sign-out-alt"></i>Déconnexion
-</li>
+          <li><i class="fas fa-sign-out-alt"></i>Déconnexion</li>
         </ul>
       </div>
     </nav>
@@ -25,9 +24,9 @@
 <style lang="scss" scoped>
 #menu {
   display: none;
-  li{
-      color: white;
-      text-decoration: none;
+  li {
+    color: white;
+    text-decoration: none;
   }
 }
 
@@ -45,22 +44,22 @@
 }
 
 @media only screen and (max-width: 425px) {
-    .menu-checkbox:checked ~ #menu {
-        width: 100%;
-        border-bottom-left-radius: 0;
-    }
+  .menu-checkbox:checked ~ #menu {
+    width: 100%;
+    border-bottom-left-radius: 0;
+  }
 }
 
 .fa-chevron-down {
-    color: white;
-    background-color:#254574;
-    padding: 0.3rem;
-    border-radius: 25px;
-    margin-right: 1rem;
-    &:hover{
-        background-color: #0c3c88;
-        color: #ffffffbf;
-    }
+  color: white;
+  background-color: #254574;
+  padding: 0.3rem;
+  border-radius: 25px;
+  margin-right: 1rem;
+  &:hover {
+    background-color: #0c3c88;
+    color: #ffffffbf;
+  }
 }
 
 .menu-checkbox {
@@ -73,29 +72,28 @@
   border: 1px solid white;
 }
 
-li{
-    margin: 0;
-    height: 30px;
-    i {
-        margin-right: 8px;
-        font-size: 1rem;
-    }
+li {
+  margin: 0;
+  height: 30px;
+  i {
+    margin-right: 8px;
+    font-size: 1rem;
+  }
 }
 
-#menu li{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
+#menu li {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
 }
 
-li:hover{
-    background-color: #254574;
+li:hover {
+  background-color: #254574;
 }
 
-
-.menu-toggle{
-    padding: 3px;
-    position: relative;
+.menu-toggle {
+  padding: 3px;
+  position: relative;
 }
 </style>

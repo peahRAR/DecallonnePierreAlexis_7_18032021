@@ -14,6 +14,7 @@
           <Modal
           v-show="isModalVisible"
           @close="closeModal"
+          valueBtn = "Publier"
           />
 
         </div>

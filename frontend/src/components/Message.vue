@@ -9,7 +9,43 @@
         <p v-if="tag" class="tag">
           <i class="icon-tag fas fa-tag"></i>{{ tag }}
         </p>
-        <ul class="option fas fa-ellipsis-h"></ul>
+        <div class="modifier-toggle">
+          <input
+            type="checkbox"
+            name="toggle"
+            :id="`modifier-checkbox-${idMessage}`"
+            class="modifier-checkbox"
+          />
+
+          <Modal
+            v-show="isModalVisible"
+            @close="closeModal"
+            valueBtn="Modifier"
+            valueTag="this.tag"
+            valueContent="Content Static"
+            
+          >
+            <template v-slot:header>
+              <p class="header-txt"> Modifier la publication</p>
+            </template>
+          </Modal>
+
+          <label
+            :for="`modifier-checkbox-${idMessage}`"
+            class="modifier-toggle"
+          >
+            <i class="adminOption fas fa-ellipsis-h"></i>
+          </label>
+
+          <ul :id="`option-${idMessage}`" class="option">
+            <li class="elem">
+              <button v-on:click.prevent="showModal"><i class="fas fa-edit"></i> Modifier</button>
+            </li>
+            <li class="elem">
+              <button v-on:click.prevent="deletePost"><i class="fas fa-trash-alt"></i> Supprimer</button>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
     <div class="header-content">
@@ -42,11 +78,16 @@
 <script>
 // Import
 import LikeButton from "@/components/LikeButton.vue";
+import Modal from "@/components/Modal.vue";
 
 export default {
   name: "Message",
   components: {
     LikeButton,
+    Modal,
+  },
+  created: function(){
+    console.log("tag : "+ this.tag);
   },
   props: {
     author: String,
@@ -63,6 +104,7 @@ export default {
       userDislike: this.like.userReaction.dislike,
       countLike: this.like.nbLike,
       countDislike: this.like.nbDislike,
+      isModalVisible: false,
     };
   },
   computed: {
@@ -71,6 +113,31 @@ export default {
     },
   },
   methods: {
+    // Gestion Modal
+
+    showModal() {
+      this.isModalVisible = true;
+    },
+    closeModal() {
+      this.isModalVisible = false;
+    },
+
+    // Methode delete Post
+    deletePost: function () {
+      let token = localStorage.getItem("token");
+      token = JSON.parse(token);
+      token = token.token;
+      const headers = {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+      };
+      fetch(
+        `http://${process.env.VUE_APP_URL_BDD}/v1/messages/${this.idMessage}`,
+        { method: "delete", headers }
+      );
+      document.location.reload();
+    },
+
     // Methode suppression de Like
     deleteAdvice: function () {
       let token = localStorage.getItem("token");
@@ -167,6 +234,92 @@ export default {
 $dark-blue: #081f43;
 $border: 1px solid #091f4317;
 
+[id^="option"] {
+  li {
+    text-decoration: none;
+    &:hover {
+      background-color: #254574;
+      color: white;
+    }
+  }
+}
+
+.option {
+  display: none;
+  margin-top: 15px;
+  position: absolute;
+  cursor: pointer;
+  color: #091f43;
+  line-height: 2rem;
+  height: 2rem;
+  width: 2rem;
+  font-size: 0.9rem;
+  filter: drop-shadow(0 0.0625rem 0.0625rem rgba(0, 0, 0, 0.3));
+  &::before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    bottom: 100%;
+    left: 4.4rem;
+    border: 0.75rem solid transparent;
+    border-top: none;
+    border-bottom-color: #fff;
+    filter: drop-shadow(0 -0.0625rem 0.0625rem rgba(0, 0, 0, 0.1));
+  }
+  .elem {
+    &:hover button {
+      color: white;
+    }
+    &:first-child {
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+    }
+    &:last-child {
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+    }
+    button {
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+  }
+}
+
+.modifier-checkbox:checked ~ .option {
+  display: flex;
+  flex-direction: column;
+  width: 100px;
+  z-index: 4;
+  transform: translate(-48px, -16px);
+}
+
+.header-txt {
+  margin: auto;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.adminOption {
+  height: 20px;
+  width: 20px;
+  padding: 5px;
+  &:hover {
+    background: $dark-blue;
+    border-radius: 25px;
+    color: white;
+  }
+}
+
+.elem {
+  background-color: white;
+}
+
+.modifier-checkbox {
+  opacity: 0;
+}
+
 .card {
   display: flex;
   flex-direction: column;
@@ -209,20 +362,6 @@ $border: 1px solid #091f4317;
   display: flex;
   font-size: 0.75rem;
   color: #0000007e;
-}
-
-.option {
-  cursor: pointer;
-  color: #091f43;
-  line-height: 2rem;
-  height: 2rem;
-  width: 2rem;
-  font-size: 0.9rem;
-  &:hover {
-    color: white;
-    background-color: #081f43;
-    border-radius: 50%;
-  }
 }
 
 .content {

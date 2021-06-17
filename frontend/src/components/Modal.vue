@@ -14,6 +14,9 @@
         <slot name="body">
           <Editor 
           type="post"
+          :valueBtn="valueBtn"
+          :valueTag="valueTag"
+          :valueContent="valueContent"
           />
         </slot>
       </section>
@@ -29,6 +32,12 @@ export default {
   components : {
       Editor
   },
+  props : {
+    valueTag : String,
+    valueContent : String,
+    valueAttachement : String,
+    valueBtn : String
+  },
   methods: {
     close() {
       this.$emit("close");
@@ -38,6 +47,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -48,6 +58,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 6;
 }
 
 .modal {
@@ -94,8 +105,7 @@ export default {
   color: white;
   background-color: #081f43;
   border-radius: 50%;
-  padding-top: 2px;
-  padding-right: 6px;
+  padding: 2px;
   &:hover {
     background-color: #081f43cb;
     color: rgb(225, 225, 225);

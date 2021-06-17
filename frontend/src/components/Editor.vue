@@ -1,8 +1,11 @@
 <template>
   <div class="editor">
-    <Post v-if="type === 'post'" />
-
-
+    <Post
+      v-if="type === 'post'"
+      :valueBtn="valueBtn"
+      :valueTag="valueTag"
+      :valueContent="valueContent"
+    />
   </div>
 </template>
 
@@ -16,6 +19,10 @@ export default {
   },
   props: {
     type: String,
+    valueBtn: String,
+    valueTag: String,
+    valueContent: String,
+    valueAttachement: String,
   },
 };
 </script>

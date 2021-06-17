@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     tags: {
       type: DataTypes.JSON,
       allowNull: true,
-      defaultValue: []
+      defaultValue: null
     }
   }, {
     sequelize,

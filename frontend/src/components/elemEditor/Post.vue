@@ -1,7 +1,7 @@
 <template>
   <form @submit.prevent="sendPost" class="post">
     <div class="tagBox">
-      <label for="tag">Tag :</label>
+      <label for="tag">Tag : </label>
       <input
         v-model="message.tags"
         class="tag"
@@ -55,7 +55,7 @@
     </div>
     <div class="row align-right">
       <button class="btn-post col-xs-4" type="submit" value="sendPost">
-        Publier
+        {{valueBtn}}
       </button>
     </div>
   </form>
@@ -64,11 +64,16 @@
 <script>
 export default {
   name: "Post",
+  props: {
+    valueBtn : String,
+    valueTag : String,
+    valueContent : String,
+    valueAttachement : String,
+  },
   data() {
     return {
       userInfo: JSON.parse(localStorage.getItem("token")),
       imageData: "",
-      file: "",
       message: {
         tags: null,
         content: null,
@@ -78,6 +83,13 @@ export default {
       },
     };
   },
+
+  mounted: function() {
+    this.message.tags = this.valueTag
+    this.message.content = this.valueContent
+    this.message.attachement = this.valueAttachement
+  },
+
   computed: {
     charactersCounter() {
       let limit = 500;
@@ -119,7 +131,7 @@ export default {
         },
         body: message,
       });
-      //document.location.reload();
+      document.location.reload();
     },
 
     chooseFiles: function () {
@@ -282,7 +294,10 @@ textarea {
   color: white;
   font-weight: bold;
   padding: 0.3rem 0.8rem;
-  border-radius: 10px;
+  border-radius: 5px;
   font-size: 15px;
+  outline: none;
+  border: none;
+  cursor: pointer;
 }
 </style>
