@@ -207,7 +207,7 @@ textarea {
   width: fit-content;
   color: white;
   text-align: end;
-  margin: 0 0 15px auto;
+  margin: 0 10px 15px auto;
   background-color: #081f43;
   border-radius: 10px;
   padding: 3px 8px;

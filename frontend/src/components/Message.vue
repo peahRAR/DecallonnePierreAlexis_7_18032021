@@ -15,18 +15,18 @@
             name="toggle"
             :id="`modifier-checkbox-${idMessage}`"
             class="modifier-checkbox"
+            ref="checkboxInput"
           />
 
           <Modal
             v-show="isModalVisible"
             @close="closeModal"
             valueBtn="Modifier"
-            valueTag="this.tag"
+            :valueTag="this.tag"
             valueContent="Content Static"
-            
           >
             <template v-slot:header>
-              <p class="header-txt"> Modifier la publication</p>
+              <p class="header-txt">Modifier la publication</p>
             </template>
           </Modal>
 
@@ -39,20 +39,24 @@
 
           <ul :id="`option-${idMessage}`" class="option">
             <li class="elem">
-              <button v-on:click.prevent="showModal"><i class="fas fa-edit"></i> Modifier</button>
+              <button v-on:click.prevent="showModal">
+                <i class="fas fa-edit"></i> Modifier
+              </button>
             </li>
             <li class="elem">
-              <button v-on:click.prevent="deletePost"><i class="fas fa-trash-alt"></i> Supprimer</button>
+              <button v-on:click.prevent="deletePost">
+                <i class="fas fa-trash-alt"></i> Supprimer
+              </button>
             </li>
           </ul>
         </div>
       </div>
     </div>
     <div class="header-content">
-      <p class="content">{{ content }}</p>
+      <p class="content" ref="content">{{ content }}</p>
     </div>
     <div class="img-card">
-      <img :src="imageUrl" v-if="image" />
+      <img ref="attachement" :src="imageUrl" v-if="image" />
     </div>
     <div class="likeBar">
       <LikeButton
@@ -86,8 +90,14 @@ export default {
     LikeButton,
     Modal,
   },
-  created: function(){
-    console.log("tag : "+ this.tag);
+  data() {
+    return {
+      userLike: this.like.userReaction.like,
+      userDislike: this.like.userReaction.dislike,
+      countLike: this.like.nbLike,
+      countDislike: this.like.nbDislike,
+      isModalVisible: false,
+    };
   },
   props: {
     author: String,
@@ -98,14 +108,22 @@ export default {
     idMessage: Number,
     like: Object,
   },
-  data() {
-    return {
-      userLike: this.like.userReaction.like,
-      userDislike: this.like.userReaction.dislike,
-      countLike: this.like.nbLike,
-      countDislike: this.like.nbDislike,
-      isModalVisible: false,
-    };
+  mounted: function () {
+    console.log(this.tag);
+
+    let input = this.$refs.checkboxInput;
+    let body = document.querySelector("body");
+
+    input.addEventListener("click", (e) => {
+      e.stopPropagation();
+      console.log("listener on input with the onClick");
+      if (this.$refs.checkboxInput.checked) {
+        body.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.$refs.checkboxInput.checked = false;
+        });
+      }
+    });
   },
   computed: {
     imageUrl() {
@@ -285,6 +303,12 @@ $border: 1px solid #091f4317;
       cursor: pointer;
     }
   }
+}
+
+.modifier-checkbox:checked ~ label i {
+  background-color: #081f43;
+  border-radius: 25px;
+  color: #fff;
 }
 
 .modifier-checkbox:checked ~ .option {
