@@ -127,7 +127,7 @@ export default {
       let message = new FormData();
 
       if (inputFile.files[0]) {
-        message.append("attachement", this.valueAttachement);
+        message.append("attachement", this.message.attachement);
       }
       if (this.message.content) {
         message.append("content", this.message.content);
@@ -180,7 +180,7 @@ export default {
 
     // SUPPRESSION ATTACHEMENT
     close() {
-      this.valueAttachement = null;
+      this.message.attachement = null;
     },
   },
 };
