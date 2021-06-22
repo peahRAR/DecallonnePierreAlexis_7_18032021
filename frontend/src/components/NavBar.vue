@@ -14,12 +14,25 @@
         <ul id="menu" class="col-xs-4">
           <li><i class="fas fa-times"></i>Suppression du compte</li>
           <li><i class="fas fa-users-cog"></i>Administration</li>
-          <li><i class="fas fa-sign-out-alt"></i>Déconnexion</li>
+          <li><i class="disconnect fas fa-sign-out-alt"></i> <a v-on:click="disconnect">Déconnexion</a></li>
         </ul>
       </div>
     </nav>
   </div>
 </template>
+
+<script>
+export default {
+  name : "NavBar",
+  methods : {
+    disconnect() {
+      localStorage.removeItem('token');
+      document.location.reload();
+    }
+  }
+}
+</script>
+
 
 <style lang="scss" scoped>
 #menu {

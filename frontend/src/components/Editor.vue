@@ -5,6 +5,8 @@
       :valueBtn="valueBtn"
       :valueTag="valueTag"
       :valueContent="valueContent"
+      :valueAttachement="valueAttachement"
+      :id="id"
     />
   </div>
 </template>
@@ -23,6 +25,7 @@ export default {
     valueTag: String,
     valueContent: String,
     valueAttachement: String,
+    id: Number,
   },
 };
 </script>

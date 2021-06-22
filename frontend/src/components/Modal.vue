@@ -17,6 +17,8 @@
           :valueBtn="valueBtn"
           :valueTag="valueTag"
           :valueContent="valueContent"
+          :valueAttachement="valueAttachement"
+          :id="id"
           />
         </slot>
       </section>
@@ -36,7 +38,8 @@ export default {
     valueTag : String,
     valueContent : String,
     valueAttachement : String,
-    valueBtn : String
+    valueBtn : String,
+    id: Number,
   },
   methods: {
     close() {

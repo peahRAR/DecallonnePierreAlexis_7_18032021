@@ -22,8 +22,10 @@
             v-show="isModalVisible"
             @close="closeModal"
             valueBtn="Modifier"
-            :valueTag="this.tag"
-            valueContent="Content Static"
+            :valueTag="tag"
+            :valueContent="content"
+            :valueAttachement="image"
+            :id="idMessage"
           >
             <template v-slot:header>
               <p class="header-txt">Modifier la publication</p>
@@ -105,18 +107,16 @@ export default {
     image: String,
     content: String,
     tag: String,
+    id : Number,
     idMessage: Number,
     like: Object,
   },
   mounted: function () {
-    console.log(this.tag);
-
     let input = this.$refs.checkboxInput;
     let body = document.querySelector("body");
 
     input.addEventListener("click", (e) => {
       e.stopPropagation();
-      console.log("listener on input with the onClick");
       if (this.$refs.checkboxInput.checked) {
         body.addEventListener("click", (e) => {
           e.stopPropagation();
@@ -392,6 +392,8 @@ $border: 1px solid #091f4317;
   font-size: 0.94rem;
   display: flex;
   padding: 1rem 1rem 1.15rem 1rem;
+  text-align: left;
+  line-height: 1.33rem;
 }
 
 .img-card {
@@ -423,8 +425,6 @@ $border: 1px solid #091f4317;
   text-transform: capitalize;
   background-color: $dark-blue;
   color: white;
-  box-shadow: 12px 12px 16px 0 rgba(0, 0, 0, 0.112),
-    -8px -8px 12px 0 rgba(149, 142, 216, 0.057);
   border-radius: 50px;
 }
 

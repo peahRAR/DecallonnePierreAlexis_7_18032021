@@ -1,5 +1,6 @@
 <template>
   <form @submit.prevent="sendPost" class="post">
+    <!-- TAG -->
     <div class="tagBox">
       <label for="tag">Tag : </label>
       <input
@@ -13,15 +14,16 @@
       />
     </div>
 
-    <!-- PREVIEW -->
+    <!-- PREVIEW ATTACHEMENT -->
 
-    <div class="image-preview" v-if="imageData.length > 0">
+    <div class="image-preview" v-if="message.attachement">
       <p class="close" @click="close">
         <i class="fas fa-times cross"></i>
       </p>
-      <img class="preview" :src="imageData" />
+      <img class="preview" :src="imageUrl" />
     </div>
 
+    <!-- CONTENT -->
     <div class="txtArea">
       <textarea
         v-model="message.content"
@@ -37,6 +39,7 @@
       <p class="counter">{{ charactersCounter }}</p>
     </div>
 
+    <!-- UPLOAD ATTACHEMENT -->
     <div class="addFile">
       <div class="column">
         <label class="bold" for="fileUpload">Ajouter un fichier :</label>
@@ -49,13 +52,15 @@
         type="file"
         hidden
       />
+
+      <!-- BOUTON CREATE/MODIFY POST -->
       <button class="btn-picture" @click.prevent="chooseFiles()">
         <i class="far fa-image picture-img"></i>
       </button>
     </div>
     <div class="row align-right">
       <button class="btn-post col-xs-4" type="submit" value="sendPost">
-        {{valueBtn}}
+        {{ valueBtn }}
       </button>
     </div>
   </form>
@@ -65,10 +70,11 @@
 export default {
   name: "Post",
   props: {
-    valueBtn : String,
-    valueTag : String,
-    valueContent : String,
-    valueAttachement : String,
+    valueBtn: String,
+    valueTag: String,
+    valueContent: String,
+    valueAttachement: String,
+    id: Number,
   },
   data() {
     return {
@@ -80,17 +86,24 @@ export default {
         attachement: null,
         idParent: null,
         userId: null,
+        id: null,
       },
     };
   },
 
-  mounted: function() {
-    this.message.tags = this.valueTag
-    this.message.content = this.valueContent
-    this.message.attachement = this.valueAttachement
+  mounted: function () {
+    this.message.attachement = this.valueAttachement;
+    this.message.tags = this.valueTag;
+    this.message.content = this.valueContent;
   },
 
   computed: {
+    // TRANSFORME URL RELATIF EN ABSOLUE
+    imageUrl() {
+      return `http://${process.env.VUE_APP_URL_BDD}${this.message.attachement}`;
+    },
+
+    // COMPTEUR
     charactersCounter() {
       let limit = 500;
 
@@ -110,10 +123,11 @@ export default {
       // Recuperation du fichier attachement
       const inputFile = document.getElementById("fileUpload");
 
-      // Creation message
+      // Recuperation des données du message
       let message = new FormData();
+
       if (inputFile.files[0]) {
-        message.append("attachement", inputFile.files[0]);
+        message.append("attachement", this.valueAttachement);
       }
       if (this.message.content) {
         message.append("content", this.message.content);
@@ -122,35 +136,51 @@ export default {
         message.append("tags", this.message.tags);
       }
 
-      console.log(message.tags);
+      // Creation Message
+      if (!this.id) {
+        fetch(`http://${process.env.VUE_APP_URL_BDD}/v1/messages`, {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          body: message,
+        });
 
-      fetch(`http://${process.env.VUE_APP_URL_BDD}/v1/messages`, {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-        body: message,
-      });
+        // Modification message
+      } else {
+        fetch(`http://${process.env.VUE_APP_URL_BDD}/v1/messages/${this.id}`, {
+          method: "PUT",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          body: message,
+        });
+      }
+
       document.location.reload();
     },
 
+    // UPLOAD ATTACHEMENT
     chooseFiles: function () {
       document.getElementById("fileUpload").click();
     },
 
+    // PREVIEW
     previewImage: function (event) {
       this.file = this.$refs.file.files[0];
       let input = event.target;
       if (input.files && input.files[0]) {
         let reader = new FileReader();
         reader.onload = () => {
-          this.imageData = String(reader.result);
+          this.imageUrl = String(reader.result);
         };
         reader.readAsDataURL(input.files[0]);
       }
     },
+
+    // SUPPRESSION ATTACHEMENT
     close() {
-      this.imageData = "";
+      this.valueAttachement = null;
     },
   },
 };
