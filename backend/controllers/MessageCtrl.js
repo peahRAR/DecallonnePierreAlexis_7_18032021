@@ -129,6 +129,10 @@ module.exports = {
             message.tags = req.body.tags;
             message.attachement = attachement;
 
+            if (!attachement) {
+                message.attachement = null
+            }
+
             await message.save()
                 .then(() => {
                     res.status(201).json({ message: 'modified message' })

@@ -7,7 +7,7 @@
         v-model="message.tags"
         class="tag"
         name="tag"
-        id="tag"
+        :id="`tag${message.id}`"
         type="text"
         maxlength="20"
         placeholder="un mot de 20 caractères max."
@@ -16,11 +16,11 @@
 
     <!-- PREVIEW ATTACHEMENT -->
 
-    <div class="image-preview" v-if="message.attachement">
+    <div class="image-preview">
       <p class="close" @click="close">
         <i class="fas fa-times cross"></i>
       </p>
-      <img class="preview" :src="imageUrl" />
+      <img :id="`preview${message.id}`" class="preview" :src="imageUrl" />
     </div>
 
     <!-- CONTENT -->
@@ -29,7 +29,7 @@
         v-model="message.content"
         @input="$emit('input', message)"
         name="message"
-        id="message"
+        :id="`message${message.id}`"
         cols="30"
         rows="10"
         maxlength="500"
@@ -47,7 +47,7 @@
       </div>
       <input
         @change="previewImage"
-        id="fileUpload"
+        :id="`fileUpload${message.id}`"
         ref="file"
         type="file"
         hidden
@@ -95,12 +95,17 @@ export default {
     this.message.attachement = this.valueAttachement;
     this.message.tags = this.valueTag;
     this.message.content = this.valueContent;
+    this.message.id = this.id;
   },
 
   computed: {
     // TRANSFORME URL RELATIF EN ABSOLUE
     imageUrl() {
-      return `http://${process.env.VUE_APP_URL_BDD}${this.message.attachement}`;
+      if (this.message.attachement) {
+        return `http://${process.env.VUE_APP_URL_BDD}${this.message.attachement}`;
+      } else {
+        return null;
+      }
     },
 
     // COMPTEUR
@@ -121,17 +126,24 @@ export default {
       token = token.token;
 
       // Recuperation du fichier attachement
-      const inputFile = document.getElementById("fileUpload");
+      const inputFile = document.getElementById("fileUpload" + this.message.id);
 
       // Recuperation des données du message
       let message = new FormData();
 
+      // Recuperation Attachement
       if (inputFile.files[0]) {
+        message.append("attachement", inputFile.files[0]);
+      } else if (this.message.attachement) {
         message.append("attachement", this.message.attachement);
       }
+
+      // Recuperation content
       if (this.message.content) {
         message.append("content", this.message.content);
       }
+
+      // Recuperation tag
       if (this.message.tags) {
         message.append("tags", this.message.tags);
       }
@@ -156,13 +168,12 @@ export default {
           body: message,
         });
       }
-
       document.location.reload();
     },
 
     // UPLOAD ATTACHEMENT
     chooseFiles: function () {
-      document.getElementById("fileUpload").click();
+      document.getElementById("fileUpload" + this.message.id).click();
     },
 
     // PREVIEW
@@ -172,7 +183,11 @@ export default {
       if (input.files && input.files[0]) {
         let reader = new FileReader();
         reader.onload = () => {
-          this.imageUrl = String(reader.result);
+          this.message.attachement = String(reader.result);
+          console.log(this.message.attachement);
+          document.getElementById("preview" + this.message.id).src =
+            this.message.attachement;
+          console.log(this.message.attachement);
         };
         reader.readAsDataURL(input.files[0]);
       }
