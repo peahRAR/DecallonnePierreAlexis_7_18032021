@@ -17,10 +17,14 @@
     <!-- PREVIEW ATTACHEMENT -->
 
     <div class="image-preview">
-      <p class="close" @click="close">
+      <p class="close" @click="close" :class="{ hidden: hidden }">
         <i class="fas fa-times cross"></i>
       </p>
-      <img :id="`preview${message.id}`" class="preview" :src="imageUrl" />
+      <img
+        :id="`preview${message.id}`"
+        class="preview"
+        :src="imageUrl || message.imageUpdated"
+      />
     </div>
 
     <!-- CONTENT -->
@@ -80,6 +84,7 @@ export default {
     return {
       userInfo: JSON.parse(localStorage.getItem("token")),
       imageData: "",
+      hidden: false,
       message: {
         tags: null,
         content: null,
@@ -87,6 +92,7 @@ export default {
         idParent: null,
         userId: null,
         id: null,
+        imageUpdated:null
       },
     };
   },
@@ -96,6 +102,9 @@ export default {
     this.message.tags = this.valueTag;
     this.message.content = this.valueContent;
     this.message.id = this.id;
+    if (this.message.attachement) {
+      this.hidden = false
+    }
   },
 
   computed: {
@@ -132,9 +141,9 @@ export default {
       let message = new FormData();
 
       // Recuperation Attachement
-      if (inputFile.files[0]) {
+      if (this.message.imageUpdated) {
         message.append("attachement", inputFile.files[0]);
-      } else if (this.message.attachement) {
+      } else{
         message.append("attachement", this.message.attachement);
       }
 
@@ -183,11 +192,11 @@ export default {
       if (input.files && input.files[0]) {
         let reader = new FileReader();
         reader.onload = () => {
-          this.message.attachement = String(reader.result);
-          console.log(this.message.attachement);
-          document.getElementById("preview" + this.message.id).src =
-            this.message.attachement;
-          console.log(this.message.attachement);
+          this.message.imageUpdated = String(reader.result);
+          document.getElementById("preview" + this.message.id).src = this.message.imageUpdated;
+          if (this.message.imageUpdated) {
+            this.hidden = false;
+          }
         };
         reader.readAsDataURL(input.files[0]);
       }
@@ -196,6 +205,8 @@ export default {
     // SUPPRESSION ATTACHEMENT
     close() {
       this.message.attachement = null;
+      this.message.imageUpdated = null;
+      this.hidden = true;
     },
   },
 };
@@ -344,5 +355,9 @@ textarea {
   outline: none;
   border: none;
   cursor: pointer;
+}
+
+.hidden{
+  display: none;
 }
 </style>

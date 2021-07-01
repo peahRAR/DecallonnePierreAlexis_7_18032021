@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card" v-if="!idParent">
     <div class="header-card">
       <div class="column">
         <p class="author">{{ author }}</p>
@@ -78,19 +78,49 @@
         :actif="userDislike"
       />
     </div>
+
+    <div class="comment">
+      <div class="writeComment">
+        <Editor
+          type="comment"
+          :valueBtn="'Envoyer'"
+          :id="id"
+          :idParent="idMessage"
+        />
+      </div>
+
+      <div class="listComment">
+        <!--liste de commentaire -->
+        <Commentaire
+          v-for="commentaire in allCommentaires"
+          v-bind:key="commentaire"
+          :author="commentaire.user"
+          :date="commentaire.updatedAt.toLocaleString().replace(',', ' ')"
+          :content="commentaire.content"
+          :image="commentaire.attachement"
+          :idMessage="commentaire.id"
+          :idParent="commentaire.idParent"
+          :like="commentaire.advices"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 // Import
 import LikeButton from "@/components/LikeButton.vue";
+import Commentaire from "@/components/Commentaire.vue";
 import Modal from "@/components/Modal.vue";
+import Editor from "./Editor.vue";
 
 export default {
   name: "Message",
   components: {
     LikeButton,
     Modal,
+    Editor,
+    Commentaire,
   },
   data() {
     return {
@@ -99,6 +129,7 @@ export default {
       countLike: this.like.nbLike,
       countDislike: this.like.nbDislike,
       isModalVisible: false,
+      allCommentaires: null,
     };
   },
   props: {
@@ -107,23 +138,43 @@ export default {
     image: String,
     content: String,
     tag: String,
-    id : Number,
+    id: Number,
+    idParent: Number,
     idMessage: Number,
     like: Object,
+  },
+  created() {
+    const headers = { "Content-Type": "application/json" };
+    fetch(
+      `http://${process.env.VUE_APP_URL_BDD}/v1/messages?type=comment&idparent=${this.idMessage}`,
+      { headers }
+    )
+      .then((response) => response.json())
+      .then(
+        (data) =>
+          (this.allCommentaires = data.map((commentaire) => {
+            return {
+              ...commentaire,
+              updatedAt: new Date(commentaire.updatedAt),
+            };
+          }))
+      );
   },
   mounted: function () {
     let input = this.$refs.checkboxInput;
     let body = document.querySelector("body");
 
-    input.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (this.$refs.checkboxInput.checked) {
-        body.addEventListener("click", (e) => {
-          e.stopPropagation();
-          this.$refs.checkboxInput.checked = false;
-        });
-      }
-    });
+    if (input) {
+      input.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (this.$refs.checkboxInput.checked) {
+          body.addEventListener("click", (e) => {
+            e.stopPropagation();
+            this.$refs.checkboxInput.checked = false;
+          });
+        }
+      });
+    }
   },
   computed: {
     imageUrl() {
@@ -252,98 +303,6 @@ export default {
 $dark-blue: #081f43;
 $border: 1px solid #091f4317;
 
-[id^="option"] {
-  li {
-    text-decoration: none;
-    &:hover {
-      background-color: #254574;
-      color: white;
-    }
-  }
-}
-
-.option {
-  display: none;
-  margin-top: 15px;
-  position: absolute;
-  cursor: pointer;
-  color: #091f43;
-  line-height: 2rem;
-  height: 2rem;
-  width: 2rem;
-  font-size: 0.9rem;
-  filter: drop-shadow(0 0.0625rem 0.0625rem rgba(0, 0, 0, 0.3));
-  &::before {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 0;
-    bottom: 100%;
-    left: 4.4rem;
-    border: 0.75rem solid transparent;
-    border-top: none;
-    border-bottom-color: #fff;
-    filter: drop-shadow(0 -0.0625rem 0.0625rem rgba(0, 0, 0, 0.1));
-  }
-  .elem {
-    &:hover button {
-      color: white;
-    }
-    &:first-child {
-      border-top-left-radius: 5px;
-      border-top-right-radius: 5px;
-    }
-    &:last-child {
-      border-bottom-left-radius: 5px;
-      border-bottom-right-radius: 5px;
-    }
-    button {
-      border: none;
-      background: none;
-      cursor: pointer;
-    }
-  }
-}
-
-.modifier-checkbox:checked ~ label i {
-  background-color: #081f43;
-  border-radius: 25px;
-  color: #fff;
-}
-
-.modifier-checkbox:checked ~ .option {
-  display: flex;
-  flex-direction: column;
-  width: 100px;
-  z-index: 4;
-  transform: translate(-48px, -16px);
-}
-
-.header-txt {
-  margin: auto;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.adminOption {
-  height: 20px;
-  width: 20px;
-  padding: 5px;
-  &:hover {
-    background: $dark-blue;
-    border-radius: 25px;
-    color: white;
-  }
-}
-
-.elem {
-  background-color: white;
-}
-
-.modifier-checkbox {
-  opacity: 0;
-}
-
 .card {
   display: flex;
   flex-direction: column;
@@ -365,71 +324,163 @@ $border: 1px solid #091f4317;
     filter: blur(10px);
     margin: -20px;
   }
-}
 
-.header-card {
-  padding: 0.8rem 1rem 0.5rem 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: $border;
-}
-
-.author {
-  display: flex;
-  font-weight: bold;
-  font-size: 0.94rem;
-  color: #091f43;
-}
-
-.date {
-  display: flex;
-  font-size: 0.75rem;
-  color: #0000007e;
-}
-
-.content {
-  font-size: 0.94rem;
-  display: flex;
-  padding: 1rem 1rem 1.15rem 1rem;
-  text-align: left;
-  line-height: 1.33rem;
-}
-
-.img-card {
-  position: relative;
-  display: inline-block;
-  img {
-    display: block;
-    width: 100%;
-    object-fit: contain;
+  [id^="option"] {
+    li {
+      text-decoration: none;
+      &:hover {
+        background-color: #254574;
+        color: white;
+      }
+    }
   }
-}
 
-.flex-right {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+  .option {
+    display: none;
+    margin-top: 15px;
+    position: absolute;
+    cursor: pointer;
+    color: #091f43;
+    line-height: 2rem;
+    height: 2rem;
+    width: 2rem;
+    font-size: 0.9rem;
+    filter: drop-shadow(0 0.0625rem 0.0625rem rgba(0, 0, 0, 0.3));
+    &::before {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 0;
+      bottom: 100%;
+      left: 4.4rem;
+      border: 0.75rem solid transparent;
+      border-top: none;
+      border-bottom-color: #fff;
+      filter: drop-shadow(0 -0.0625rem 0.0625rem rgba(0, 0, 0, 0.1));
+    }
+    .elem {
+      &:hover button {
+        color: white;
+      }
+      &:first-child {
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+      }
+      &:last-child {
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+      }
+      button {
+        border: none;
+        background: none;
+        cursor: pointer;
+      }
+    }
+  }
 
-.fa-tag {
-  margin-right: 0.4rem;
-}
+  .modifier-checkbox:checked ~ label i {
+    background-color: #081f43;
+    border-radius: 25px;
+    color: #fff;
+  }
 
-.tag {
-  cursor: default;
-  font-size: 0.75rem;
-  padding: 0.3rem 0.8rem;
-  margin-right: 15px;
-  font-weight: bold;
-  text-transform: capitalize;
-  background-color: $dark-blue;
-  color: white;
-  border-radius: 50px;
-}
+  .modifier-checkbox:checked ~ .option {
+    display: flex;
+    flex-direction: column;
+    width: 100px;
+    z-index: 4;
+    transform: translate(-48px, -16px);
+  }
 
-.likeBar {
-  display: flex;
-  justify-content: space-between;
+  .header-txt {
+    margin: auto;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .adminOption {
+    height: 20px;
+    width: 20px;
+    padding: 5px;
+    &:hover {
+      background: $dark-blue;
+      border-radius: 25px;
+      color: white;
+    }
+  }
+
+  .elem {
+    background-color: white;
+  }
+
+  .modifier-checkbox {
+    opacity: 0;
+  }
+
+  .header-card {
+    padding: 0.8rem 1rem 0.5rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: $border;
+  }
+
+  .author {
+    display: flex;
+    font-weight: bold;
+    font-size: 0.94rem;
+    color: #091f43;
+  }
+
+  .date {
+    display: flex;
+    font-size: 0.75rem;
+    color: #0000007e;
+  }
+
+  .content {
+    font-size: 0.94rem;
+    display: flex;
+    padding: 1rem 1rem 1.15rem 1rem;
+    text-align: left;
+    line-height: 1.33rem;
+  }
+
+  .img-card {
+    position: relative;
+    display: inline-block;
+    img {
+      display: block;
+      width: 100%;
+      object-fit: contain;
+    }
+  }
+
+  .flex-right {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .fa-tag {
+    margin-right: 0.4rem;
+  }
+
+  .tag {
+    cursor: default;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.8rem;
+    margin-right: 15px;
+    font-weight: bold;
+    text-transform: capitalize;
+    background-color: $dark-blue;
+    color: white;
+    border-radius: 50px;
+  }
+
+  .likeBar {
+    display: flex;
+    justify-content: space-between;
+  }
 }
 </style>

@@ -45,14 +45,32 @@ module.exports = {
 
     // READ
     listMessage: function (req, res) {
+        const { Op } = require("sequelize");
         let fields = req.query.fields;
         let limit = parseInt(req.query.limit);
         let offset = parseInt(req.query.offset);
         let order = req.query.order;
+        let filter = req.query.type;
+        let idParent = req.query.idparent;
+        let attributes = null;
+        let where = null;
+
+        if (filter === "post") {
+            order = [(order != null) ? order.split(':') : ['updatedAt', 'DESC']]
+            attributes= (fields !== '*' && fields != null) ? fields.split(',') : null
+            where = { idParent: null }
+            
+        }
+        else if (filter === "comment") {
+            order = [(order != null) ? order.split(':') : ['updatedAt', 'ASC']]
+            attributes= (fields !== '*' && fields != null) ? fields.split(',') : null
+            where = { idParent: idParent }
+        }
 
         models.Message.findAll({
-            order: [(order != null) ? order.split(':') : ['id', 'DESC']],
-            attributes: (fields !== '*' && fields != null) ? fields.split(',') : null,
+            order: order,
+            attributes: attributes,
+            where: where,
             limit: (!isNaN(limit)) ? limit : null,
             offset: (!isNaN(offset)) ? offset : null,
             include: [{
@@ -60,6 +78,7 @@ module.exports = {
                 attributes: ['username'],
                 
             },'like']
+            
         }).then(function (messages) {
             if (messages) {
                 res.status(200).json(messages.map(message => {
@@ -89,6 +108,7 @@ module.exports = {
                     });
                     return {
                         id: message.id,
+                        idParent: message.idParent,
                         content: message.content,
                         attachement: message.attachement,
                         tag: message.tags,

@@ -31,6 +31,7 @@
           :image="message.attachement"
           :tag="message.tag"
           :idMessage="message.id"
+          :idParent="message.idParent"
           :like="message.advices"
         />
       </div>
@@ -70,7 +71,7 @@ export default {
   },
   created() {
     const headers = { "Content-Type": "application/json" };
-    fetch(`http://${process.env.VUE_APP_URL_BDD}/v1/messages/`, { headers })
+    fetch(`http://${process.env.VUE_APP_URL_BDD}/v1/messages?type=post`, { headers })
       .then((response) => response.json())
       .then(
         (data) =>
