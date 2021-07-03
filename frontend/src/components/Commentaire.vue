@@ -6,11 +6,23 @@
       </div>
 
       <div class="position-content">
-        <div class="content-box">
+        <div class="content-box" v-if="!modifier">
           <!--Content-->
           <p class="content" ref="content">{{ content }}</p>
           <p class="date">{{ date }}</p>
         </div>
+      </div>
+
+      <div class="modifcator">
+        <!--Modificateur-->
+        <Editor
+          v-if="modifier"
+          type="comment"
+          :id="idMessage"
+          :idParent="idMessage"
+          :valueContent="content"
+          :placeholder="content"
+        />
       </div>
     </div>
 
@@ -36,11 +48,15 @@
             :likeCounter="countDislike"
             :actif="userDislike"
           />
+          <button>
+            <p v-on:click="answer">Répondre</p>
+          </button>
         </div>
         <div class="config">
           <!--Modifier-->
-          <button>
-            <i class="fas fa-edit"></i> Modifier
+          <button v-on:click="modificator">
+            <i class="fas fa-edit"></i>
+            Modifier
           </button>
 
           <!--Supprimer-->
@@ -49,17 +65,49 @@
           </button>
         </div>
       </div>
+      <div class="answer" v-if="writeAnswer">
+        <Editor
+          type="comment"
+          :valueBtn="'Répondre'"
+          :id="id"
+          :idParent="idMessage"
+          :placeholder="'Votre réponse...'"
+        />
+      </div>
+
+      <div class="showComment" v-if="allCommentaires?.length > 0">
+        <div class="text-inline" v-on:click="openingComment">
+          <i class="fas arrow fa-sort-down" :class="openingClass"></i>
+          <p>Voir les réponses</p>
+        </div>
+      </div>
+
+      <div class="subComment" v-if="isOpen">
+        <Commentaire
+          v-for="commentaire in allCommentaires"
+          v-bind:key="commentaire"
+          :author="commentaire.user"
+          :date="commentaire.updatedAt.toLocaleString().replace(',', ' ')"
+          :content="commentaire.content"
+          :image="commentaire.attachement"
+          :idMessage="commentaire.id"
+          :idParent="commentaire.idParent"
+          :like="commentaire.advices"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import LikeButton from "@/components/LikeButton.vue";
+import Editor from "@/components/Editor";
 
 export default {
   name: "Commentaire",
   components: {
     LikeButton,
+    Editor,
   },
   data() {
     return {
@@ -68,6 +116,10 @@ export default {
       countLike: this.like.nbLike,
       countDislike: this.like.nbDislike,
       allCommentaires: null,
+      writeAnswer: false,
+      modifier: false,
+      isOpen: false,
+      openingClass: "close",
     };
   },
   props: {
@@ -81,7 +133,50 @@ export default {
     idMessage: Number,
     like: Object,
   },
+  created() {
+    const headers = { "Content-Type": "application/json" };
+    fetch(
+      `http://${process.env.VUE_APP_URL_BDD}/v1/messages?type=comment&idparent=${this.idMessage}`,
+      { headers }
+    )
+      .then((response) => response.json())
+      .then(
+        (data) =>
+          (this.allCommentaires = data.map((commentaire) => {
+            return {
+              ...commentaire,
+              updatedAt: new Date(commentaire.updatedAt),
+            };
+          }))
+      );
+  },
   methods: {
+    openingComment: function () {
+      if (!this.isOpen) {
+        this.isOpen = true;
+        this.openingClass = "open";
+        return;
+      }
+      this.isOpen = false;
+      this.openingClass = "close";
+    },
+
+    modificator: function () {
+      if (!this.modifier) {
+        this.modifier = true;
+        return;
+      }
+      this.modifier = false;
+    },
+
+    answer: function () {
+      if (!this.writeAnswer) {
+        this.writeAnswer = true;
+        return;
+      }
+      this.writeAnswer = false;
+    },
+
     // Methode delete Post
     deletePost: function () {
       let token = localStorage.getItem("token");
@@ -229,7 +324,7 @@ export default {
 .date {
   font-size: 11px;
   text-align: right;
-  margin-top: 0.5rem;
+  margin-top: 1.5rem;
 }
 
 .bottom-bar {
@@ -265,6 +360,9 @@ export default {
   opacity: 1;
 }
 
+.answer {
+  padding-bottom: 10px;
+}
 
 button {
   background-color: transparent;
@@ -274,4 +372,32 @@ button {
     color: rgba(0, 0, 0, 0.632);
   }
 }
+
+  .showComment {
+    height: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+  }
+
+  .arrow{
+    font-size: 25px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
+
+  .text-inline {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    line-height: 25px;
+    cursor: pointer;
+  }
+
+  .close{
+    transform: rotate(-90deg);
+    margin-bottom: 3px;
+    margin-right: 15px;
+  }
+
 </style>

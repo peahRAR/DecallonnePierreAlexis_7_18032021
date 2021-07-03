@@ -13,7 +13,8 @@
     :valueBtn="valueBtn"
     :id="id"
     :idParent="idParent"
-    :valueAttachement="valueAttachement"
+    :valueContent="valueContent"
+    :placeholder="placeholder"
     />
 
   </div>
@@ -37,6 +38,7 @@ export default {
     valueAttachement: String,
     id: Number,
     idParent: Number,
+    placeholder:String,
   },
 };
 </script>

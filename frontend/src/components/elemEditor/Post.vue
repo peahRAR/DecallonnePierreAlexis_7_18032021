@@ -213,6 +213,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
 .post {
   display: flex;
   flex-direction: column;

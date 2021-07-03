@@ -86,10 +86,18 @@
           :valueBtn="'Envoyer'"
           :id="id"
           :idParent="idMessage"
+          :placeholder="'Votre commentaire...'"
         />
       </div>
 
-      <div class="listComment">
+      <div class="showComment" v-if="allCommentaires?.length > 0" >
+        <div class="text-inline" v-on:click="openingComment">
+          <i class="fas arrow fa-sort-down" :class="openingClass"></i>
+          <p>Voir les commentaires</p>
+        </div>
+      </div>
+
+      <div class="listComment" v-if="isOpen">
         <!--liste de commentaire -->
         <Commentaire
           v-for="commentaire in allCommentaires"
@@ -130,6 +138,8 @@ export default {
       countDislike: this.like.nbDislike,
       isModalVisible: false,
       allCommentaires: null,
+      isOpen: false,
+      openingClass: "close",
     };
   },
   props: {
@@ -182,8 +192,17 @@ export default {
     },
   },
   methods: {
-    // Gestion Modal
+    openingComment: function(){
+      if (!this.isOpen) {
+        this.isOpen = true;
+        this.openingClass = "open"
+        return
+      }
+      this.isOpen = false;
+      this.openingClass = "close"
+    },
 
+    // Gestion Modal
     showModal() {
       this.isModalVisible = true;
     },
@@ -482,5 +501,33 @@ $border: 1px solid #091f4317;
     display: flex;
     justify-content: space-between;
   }
+
+  .showComment {
+    height: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+  }
+
+  .arrow{
+    font-size: 25px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
+
+  .text-inline {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    line-height: 25px;
+    cursor: pointer;
+  }
+
+  .close{
+    transform: rotate(-90deg);
+    margin-bottom: 3px;
+    margin-right: 15px;
+  }
+
 }
 </style>

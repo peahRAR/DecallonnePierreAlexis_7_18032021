@@ -11,7 +11,7 @@
             ref="textArea"
             @input="resize"
             class="textArea"
-            placeholder="Votre commentaire..."
+            :placeholder="placeholder"
             required
           ></textarea>
           <div class="toolbar flex">
@@ -49,9 +49,11 @@ export default {
     valueContent: String,
     id: Number,
     idParent: Number,
+    placeholder: String,
   },
   mounted: function () {
     this.message.idParent = this.idParent;
+    this.message.content = this.valueContent;
   },
   computed: {
     // COMPTEUR
@@ -67,7 +69,9 @@ export default {
   methods: {
     async submitCom(e) {
       e.preventDefault();
-      
+
+      console.log(this.message.content);
+
       // Recupération Token
       let token = localStorage.getItem("token");
       token = JSON.parse(token);
@@ -91,6 +95,17 @@ export default {
       if (!this.id) {
         fetch(`http://${process.env.VUE_APP_URL_BDD}/v1/messages`, {
           method: "POST",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          body: message,
+        });
+      }
+
+      // Modification message
+      else {
+        fetch(`http://${process.env.VUE_APP_URL_BDD}/v1/messages/${this.id}`, {
+          method: "PUT",
           headers: {
             Authorization: "Bearer " + token,
           },
