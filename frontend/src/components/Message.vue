@@ -2,14 +2,14 @@
   <div class="card" v-if="!idParent">
     <div class="header-card">
       <div class="column">
-        <p class="author">{{ author }}</p>
+        <p class="author" v-if="!userInfo.isInactive">{{ author }}</p>
         <p class="date">{{ date }}</p>
       </div>
       <div class="flex-right">
         <p v-if="tag" class="tag">
           <i class="icon-tag fas fa-tag"></i>{{ tag }}
         </p>
-        <div class="modifier-toggle">
+        <div class="modifier-toggle" v-if="userInfo.isAdmin || userInfo.userId === authorId">
           <input
             type="checkbox"
             name="toggle"
@@ -90,7 +90,7 @@
         />
       </div>
 
-      <div class="showComment" v-if="allCommentaires?.length > 0" >
+      <div class="showComment" v-if="allCommentaires?.length > 0">
         <div class="text-inline" v-on:click="openingComment">
           <i class="fas arrow fa-sort-down" :class="openingClass"></i>
           <p>Voir les commentaires</p>
@@ -102,13 +102,17 @@
         <Commentaire
           v-for="commentaire in allCommentaires"
           v-bind:key="commentaire"
+          :counter="0"
           :author="commentaire.user"
+          :authorId="commentaire.userId"
           :date="commentaire.updatedAt.toLocaleString().replace(',', ' ')"
           :content="commentaire.content"
           :image="commentaire.attachement"
           :idMessage="commentaire.id"
           :idParent="commentaire.idParent"
           :like="commentaire.advices"
+          :userInfo="userInfo"
+         
         />
       </div>
     </div>
@@ -144,6 +148,7 @@ export default {
   },
   props: {
     author: String,
+    authorId: Number,
     date: String,
     image: String,
     content: String,
@@ -152,6 +157,8 @@ export default {
     idParent: Number,
     idMessage: Number,
     like: Object,
+    counter: Number,
+    userInfo: Object
   },
   created() {
     const headers = { "Content-Type": "application/json" };
@@ -192,14 +199,14 @@ export default {
     },
   },
   methods: {
-    openingComment: function(){
+    openingComment: function () {
       if (!this.isOpen) {
         this.isOpen = true;
-        this.openingClass = "open"
-        return
+        this.openingClass = "open";
+        return;
       }
       this.isOpen = false;
-      this.openingClass = "close"
+      this.openingClass = "close";
     },
 
     // Gestion Modal
@@ -449,6 +456,8 @@ $border: 1px solid #091f4317;
     font-weight: bold;
     font-size: 0.94rem;
     color: #091f43;
+    text-transform: capitalize;
+    margin-bottom: 3px;
   }
 
   .date {
@@ -509,7 +518,7 @@ $border: 1px solid #091f4317;
     justify-content: space-evenly;
   }
 
-  .arrow{
+  .arrow {
     font-size: 25px;
     margin-right: 8px;
     margin-bottom: 8px;
@@ -523,11 +532,10 @@ $border: 1px solid #091f4317;
     cursor: pointer;
   }
 
-  .close{
+  .close {
     transform: rotate(-90deg);
     margin-bottom: 3px;
     margin-right: 15px;
   }
-
 }
 </style>

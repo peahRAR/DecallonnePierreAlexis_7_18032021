@@ -22,6 +22,7 @@ function cryptedHmac(elem, key) {
 
 // Routes
 module.exports = {
+    // INSCRIPTION USER
     register: async function (req, res) {
 
         if (req.body.email == null || req.body.username == null || req.body.password == null) {
@@ -35,7 +36,7 @@ module.exports = {
 
         // Verification si le nom d'utilisateur est disponible
         try {
-            const userFound = await models.User.findOne({ where: { "username": req.body.username}})
+            const userFound = await models.User.findOne({ where: { "username": req.body.username } })
             if (userFound) {
                 return res.status(400).json({
                     'error': 'This username already used'
@@ -46,8 +47,6 @@ module.exports = {
                 error
             });
         }
-
-
         // Regex format Email
         if (!EMAIL_REGEX.test(req.body.email)) {
             return res.status(400).json({ 'error': 'Email is not valid' });
@@ -68,16 +67,18 @@ module.exports = {
         let username = req.body.username;
         let password = bcrypt.hashSync(req.body.password, 10);
         let isAdmin = false;
+        let isInactive = false;
 
         // Find if not exist
-        await models.User.findOne({ where: { 'email.mailIdentifier': cryptedHmac(req.body.email, process.env.PASSWORDMAIL) } })
+        await models.User.findOne({ where: { 'email.mailIdentifier': cryptedHmac(req.body.email, process.env.PASSWORDMAIL) && !isInactive } })
             .then(function (mailFound) {
                 if (!mailFound) {
                     let user = models.User.create({
                         email,
                         password,
                         username,
-                        isAdmin
+                        isAdmin,
+                        isInactive
                     })
                         .then(() => res.status(201).json({
                             'userId': user.id
@@ -96,31 +97,115 @@ module.exports = {
             });
     },
 
+    // LOGIN
     login: async function (req, res) {
-        await models.User.findOne({ where: { "email.mailIdentifier": cryptedHmac(req.body.email, process.env.PASSWORDMAIL) } })
-            .then(user => {
-                if (!user) {
-                    return res.status(401).json({ error: 'User not found' });
-                }
-                bcrypt.compare(req.body.password, user.password)
-                    .then(valid => {
-                        if (!valid) {
-                            return res.status(401).json({ error: 'Wrong password' })
-                        }
-                        res.status(200).json({
-                            userId: user.id,
-                            username: user.username,
-                            isAdmin : user.isAdmin,
-                            expireDate : (Date.now() + 86400000),
-                            token: jwt.sign(
-                                { userId: user.id },
-                                process.env.RDM_TOKEN,
-                                { expiresIn: '24h' }
-                            )
-                        });
-                    })
-                    .catch(error => res.status(500).json({ error }))
+        const { Op } = require("sequelize");
+        let where = {
+            [Op.and]: [
+                { "email.mailIdentifier": cryptedHmac(req.body.email, process.env.PASSWORDMAIL) },
+                { isInactive: false }
+            ]
+        };
+
+        await models.User.findOne({
+            where: where
+        }).then(user => {
+            if (!user) {
+                return res.status(401).json({ error: 'User not found' });
+            }
+            bcrypt.compare(req.body.password, user.password)
+                .then(valid => {
+                    if (!valid) {
+                        return res.status(401).json({ error: 'Wrong password' })
+                    }
+                    res.status(200).json({
+                        userId: user.id,
+                        username: user.username,
+                        isAdmin: user.isAdmin,
+                        isInactive: user.isInactive,
+                        expireDate: (Date.now() + 86400000),
+                        token: jwt.sign(
+                            { userId: user.id },
+                            process.env.RDM_TOKEN,
+                            { expiresIn: '24h' }
+                        )
+                    });
+                })
+                .catch(error => res.status(500).json({ error }))
+        })
+            .catch(error => res.status(500).json({ error }));
+    },
+
+    // DELETE USER
+    delete: async function (req, res) {
+        try {
+            const user = await models.User.findOne({ where: { "id": req.params.id } });
+            if (!user) {
+                res.status(404).json({ "error": "Utilisateur introuvable" })
+            }
+
+            user.isInactive = true
+
+            await user.save()
+                .then(() => {
+                    res.status(204).json({ message: "Utilisateur supprimé" })
+                })
+                .catch((error) => {
+                    res.status(400).json({ error })
+                })
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    // MODIFY ADMIN
+    adminParams: async function (req, res){
+        try {
+            const user = await models.User.findOne({where: { "id": req.params.id}});
+            if (!user) {
+               res.status(404).json({"error": "User introuvable"}) 
+            }
+
+            console.log(user)
+
+            if (user.isAdmin) {
+                user.isAdmin = false
+            } else if(!user.isAdmin){
+                user.isAdmin = true
+            }
+
+            await user.save()
+            .then(()=>{
+                res.status(201).json({ message: "droits d'accés modifié"})
             })
-            .catch(error => res.status(500).json({ error }))
+            .catch ((error) => {
+                res.status(400).json({error})
+            })
+
+        } catch (error) {
+            res.status(400).json({error : "catch du trycatch"})
+        }
+    },
+
+    // READ USER
+    findUsers: async function (req, res) {
+        const { Op } = require("sequelize");
+        let order = req.query.order;
+        let fields = req.query.fields;
+
+        models.User.findAll({
+            order: [(order != null) ? order.split(':') : ['username', 'ASC']],
+            attributes: (fields !== '*' && fields != null) ? fields.split(',') : null,
+            where: { [Op.and]: [{ id: {[Op.ne]:1} }, { isInactive: false }] }
+        }).then(function (users) {
+            if (users) {
+                console.log("users : " + users)
+                res.status(200).json({
+                    ...users
+                })
+            } else {
+                res.status(404).json({ "error": "User not found" });
+            }
+        })
     }
 }

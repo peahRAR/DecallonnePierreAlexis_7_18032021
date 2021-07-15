@@ -1,6 +1,8 @@
 <template>
   <div>
-    <Header />
+    <Header 
+    :userInfo="userInfo"
+    />
     <div class="container">
       <div class="editor container-fluid">
         <div class="container">
@@ -12,11 +14,10 @@
           />
 
           <Modal
-          v-show="isModalVisible"
-          @close="closeModal"
-          valueBtn = "Publier"
+            v-show="isModalVisible"
+            @close="closeModal"
+            valueBtn="Publier"
           />
-
         </div>
         <hr class="separator space-bottom" />
       </div>
@@ -26,6 +27,7 @@
           v-for="message in allMessages"
           v-bind:key="message"
           :author="message.user"
+          :authorId="message.userId"
           :date="message.updatedAt.toLocaleString().replace(',', ' ')"
           :content="message.content"
           :image="message.attachement"
@@ -33,6 +35,7 @@
           :idMessage="message.id"
           :idParent="message.idParent"
           :like="message.advices"
+          :userInfo="userInfo"
         />
       </div>
     </div>
@@ -44,7 +47,7 @@
 import Header from "@/components/Header.vue";
 import FakeInput from "@/components/FakeInput.vue";
 import Message from "@/components/Message.vue";
-import Modal from '../components/Modal.vue';
+import Modal from "../components/Modal.vue";
 
 export default {
   name: "wall",
@@ -62,16 +65,18 @@ export default {
     };
   },
   methods: {
-    showModal(){
+    showModal() {
       this.isModalVisible = true;
     },
-    closeModal(){
+    closeModal() {
       this.isModalVisible = false;
-    }
+    },
   },
   created() {
     const headers = { "Content-Type": "application/json" };
-    fetch(`http://${process.env.VUE_APP_URL_BDD}/v1/messages?type=post`, { headers })
+    fetch(`http://${process.env.VUE_APP_URL_BDD}/v1/messages?type=post`, {
+      headers,
+    })
       .then((response) => response.json())
       .then(
         (data) =>

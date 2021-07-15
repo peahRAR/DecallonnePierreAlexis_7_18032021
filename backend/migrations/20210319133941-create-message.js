@@ -25,6 +25,11 @@ module.exports = {
           key: 'id'
         }
       },
+      isDelete: {
+        allowNull: false,
+        type: Sequelize.BOOLEAN, 
+        defaultValue : false
+      },
       content: {
         allowNull: false,
         type: Sequelize.STRING
@@ -45,8 +50,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    });
+    })
   },
+
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('Messages');
   }

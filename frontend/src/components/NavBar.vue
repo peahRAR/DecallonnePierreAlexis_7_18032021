@@ -11,10 +11,32 @@
         <label for="menu-checkbox" class="menu-toggle">
           <i class="fas fa-chevron-down"></i>
         </label>
+
+        <Modal v-show="isModalVisible" @close="closeModal">
+          <template v-slot:header>
+            <p class="header-txt">Supprimer votre compte</p>
+          </template>
+          <template v-slot:body>
+            <p class="body-txt">
+              Êtes-vous sure de vouloir supprimer votre compte ?
+            </p>
+            <button class="btn-delete" v-on:click.prevent="deleteUser">
+              Supprimer
+            </button>
+          </template>
+        </Modal>
+
         <ul id="menu" class="col-xs-4">
-          <li><i class="fas fa-times"></i>Suppression du compte</li>
-          <li><i class="fas fa-users-cog"></i>Administration</li>
-          <li><i class="disconnect fas fa-sign-out-alt"></i> <a v-on:click="disconnect">Déconnexion</a></li>
+          <li v-if="userInfo.userId != 1" v-on:click.prevent="showModal">
+            <i class="fas fa-times"></i>Suppression du compte
+          </li>
+          <li v-if="userInfo.userId === 1" v-on:click.prevent="goToAdmin">
+            <i class="fas fa-users-cog"></i>Administration
+          </li>
+          <li>
+            <i class="disconnect fas fa-sign-out-alt"></i>
+            <a v-on:click="disconnect">Déconnexion</a>
+          </li>
         </ul>
       </div>
     </nav>
@@ -22,15 +44,61 @@
 </template>
 
 <script>
+// Import
+import Modal from "@/components/Modal.vue";
+
 export default {
-  name : "NavBar",
-  methods : {
+  name: "NavBar",
+  components: {
+    Modal,
+  },
+  data() {
+    return {
+      isModalVisible: false,
+      openingClass: "close",
+    };
+  },
+  props: {
+    userInfo: Object,
+  },
+  methods: {
     disconnect() {
-      localStorage.removeItem('token');
+      localStorage.removeItem("token");
+      document.location.href ="/login";
+    },
+
+    goToAdmin(){
+      document.location.href = "/admin";
+      console.log("admin page")
+    },
+
+    // Gestion Modal
+    showModal() {
+      this.isModalVisible = true;
+      console.log("modal open " + this.isModalVisible);
+    },
+    closeModal() {
+      this.isModalVisible = false;
+    },
+
+    deleteUser() {
+      let id = this.userInfo.userId;
+      let token = localStorage.getItem("token");
+      token = JSON.parse(token);
+      token = token.token;
+      const headers = {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+      };
+      fetch(`http://${process.env.VUE_APP_URL_BDD}/v1/users/${id}`, {
+        method: "delete",
+        headers,
+      });
+      localStorage.removeItem("token");
       document.location.reload();
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 
@@ -85,6 +153,12 @@ export default {
   border: 1px solid white;
 }
 
+.header-txt {
+  margin: auto;
+  font-size: 18px;
+  font-weight: 600;
+}
+
 li {
   margin: 0;
   height: 30px;
@@ -108,5 +182,24 @@ li:hover {
 .menu-toggle {
   padding: 3px;
   position: relative;
+}
+
+.btn-delete {
+  margin-top: 1.5rem;
+  display: flex;
+  margin-left: auto;
+  margin-right: 1rem;
+  background-color: #081f43;
+  color: white;
+  font-weight: bold;
+  padding: 0.3rem 0.8rem;
+  border-radius: 5px;
+  font-size: 15px;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  &:hover {
+    background-color: #081f43cb;
+  }
 }
 </style>

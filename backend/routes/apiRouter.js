@@ -15,6 +15,9 @@ exports.router = (function () {
     // Users routes
     apiRouter.route('/users/register').post(userCtrl.register);
     apiRouter.route('/users/login').post(userCtrl.login);
+    apiRouter.route('/users/:id').delete(auth, userCtrl.delete);
+    apiRouter.route('/users').get(auth, userCtrl.findUsers);
+    apiRouter.route('/users/:id').put(auth, userCtrl.adminParams);
 
     // Message routes
     apiRouter.route('/messages').post(auth, multer, messageCtrl.createMessage);

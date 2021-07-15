@@ -1,99 +1,105 @@
 <template>
-  <div class="commentaire-box">
-    <div class="commentaire">
-      <div class="flex">
-        <p class="author">{{ author }}</p>
-      </div>
-
-      <div class="position-content">
-        <div class="content-box" v-if="!modifier">
-          <!--Content-->
-          <p class="content" ref="content">{{ content }}</p>
-          <p class="date">{{ date }}</p>
+  <div class="box">
+    <div :class="`commentaire-box-${counter}`">
+      <div class="commentaire">
+        <div class="flex">
+          <p class="author" v-if="!userInfo.isInactive">{{ author }}</p>
+          <p class="author" v-if="userInfo.isInactive">Utilisateur supprimé</p>
         </div>
-      </div>
 
-      <div class="modifcator">
-        <!--Modificateur-->
-        <Editor
-          v-if="modifier"
-          type="comment"
-          :id="idMessage"
-          :idParent="idMessage"
-          :valueContent="content"
-          :placeholder="content"
-        />
-      </div>
-    </div>
+        <div class="position-content">
+          <div class="content-box" v-if="!modifier">
+            <!--Content-->
+            <p class="content" ref="content">{{ content }}</p>
+            <p class="date">{{ date }}</p>
+          </div>
+        </div>
 
-    <div class="bottom-bar">
-      <div class="bottom-bar-content">
-        <div class="advice">
-          <!--Like-->
-          <LikeButton
-            v-on:likeAction="advice"
-            styleIcon="far fa-thumbs-up"
-            color="blue"
-            value="1"
-            :likeCounter="countLike"
-            :actif="userLike"
+        <div class="modifcator">
+          <!--Modificateur-->
+          <Editor
+            v-if="modifier"
+            type="comment"
+            :id="idMessage"
+            :idParent="idMessage"
+            :valueContent="content"
+            :placeholder="content"
           />
+        </div>
+      </div>
 
-          <!--Dislike-->
-          <LikeButton
-            v-on:likeAction="advice"
-            styleIcon="far fa-thumbs-down"
-            color="red"
-            value="0"
-            :likeCounter="countDislike"
-            :actif="userDislike"
+      <div class="bottom-bar">
+        <div class="bottom-bar-content">
+          <div class="advice">
+            <!--Like-->
+            <LikeButton
+              v-on:likeAction="advice"
+              styleIcon="far fa-thumbs-up"
+              color="blue"
+              value="1"
+              :likeCounter="countLike"
+              :actif="userLike"
+            />
+
+            <!--Dislike-->
+            <LikeButton
+              v-on:likeAction="advice"
+              styleIcon="far fa-thumbs-down"
+              color="red"
+              value="0"
+              :likeCounter="countDislike"
+              :actif="userDislike"
+            />
+            <button>
+              <p v-on:click="answer" v-if="counter < 3">Répondre</p>
+            </button>
+          </div>
+          <div class="config" v-if="userInfo.isAdmin || userInfo.userId === authorId">
+            <!--Modifier-->
+            <button v-on:click="modificator">
+              <i class="fas fa-edit"></i>
+              Modifier
+            </button>
+
+            <!--Supprimer-->
+            <button v-on:click.prevent="deletePost">
+              <i class="fas fa-trash-alt"></i> Supprimer
+            </button>
+          </div>
+        </div>
+        <div class="answer" v-if="writeAnswer">
+          <Editor
+            type="comment"
+            :valueBtn="'Répondre'"
+            :id="id"
+            :idParent="idMessage"
+            :placeholder="'Votre réponse...'"
           />
-          <button>
-            <p v-on:click="answer">Répondre</p>
-          </button>
         </div>
-        <div class="config">
-          <!--Modifier-->
-          <button v-on:click="modificator">
-            <i class="fas fa-edit"></i>
-            Modifier
-          </button>
 
-          <!--Supprimer-->
-          <button v-on:click.prevent="deletePost">
-            <i class="fas fa-trash-alt"></i> Supprimer
-          </button>
+        <div class="showComment" v-if="allCommentaires?.length > 0">
+          <div class="text-inline" v-on:click="openingComment">
+            <i class="fas arrow fa-sort-down" :class="openingClass"></i>
+            <p>Voir les réponses</p>
+          </div>
         </div>
-      </div>
-      <div class="answer" v-if="writeAnswer">
-        <Editor
-          type="comment"
-          :valueBtn="'Répondre'"
-          :id="id"
-          :idParent="idMessage"
-          :placeholder="'Votre réponse...'"
-        />
-      </div>
 
-      <div class="showComment" v-if="allCommentaires?.length > 0">
-        <div class="text-inline" v-on:click="openingComment">
-          <i class="fas arrow fa-sort-down" :class="openingClass"></i>
-          <p>Voir les réponses</p>
+        <div class="subComment" v-if="isOpen">
+          <Commentaire
+            :counter="counter + 1"
+            v-for="commentaire in allCommentaires"
+            v-bind:key="commentaire"
+            :author="commentaire.user"
+            :authorId="commentaire.userId"
+            :date="commentaire.updatedAt.toLocaleString().replace(',', ' ')"
+            :content="commentaire.content"
+            :image="commentaire.attachement"
+            :idMessage="commentaire.id"
+            :idParent="commentaire.idParent"
+            :like="commentaire.advices"
+            :userInfo="userInfo"
+          />
         </div>
-      </div>
-
-      <div class="subComment" v-if="isOpen">
-        <Commentaire
-          v-for="commentaire in allCommentaires"
-          v-bind:key="commentaire"
-          :author="commentaire.user"
-          :date="commentaire.updatedAt.toLocaleString().replace(',', ' ')"
-          :content="commentaire.content"
-          :image="commentaire.attachement"
-          :idMessage="commentaire.id"
-          :idParent="commentaire.idParent"
-          :like="commentaire.advices"
-        />
       </div>
     </div>
   </div>
@@ -124,6 +130,7 @@ export default {
   },
   props: {
     author: String,
+    authorId: Number,
     date: String,
     image: String,
     content: String,
@@ -132,6 +139,8 @@ export default {
     idParent: Number,
     idMessage: Number,
     like: Object,
+    counter: Number,
+    userInfo: Object
   },
   created() {
     const headers = { "Content-Type": "application/json" };
@@ -285,13 +294,36 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.commentaire-box {
+.box {
   background-color: #061dcc0f;
+  border-top: 1px solid rgba(0, 0, 0, 0.171);
+}
+
+.author{
+  text-transform: capitalize;
+}
+
+.commentaire-box-0 {
+  padding-left: 0;
+}
+
+.commentaire-box-1 {
+  margin-left: 1rem;
+  border-left: 4px solid rgba(27, 27, 145, 0.495);
+}
+
+.commentaire-box-2 {
+  margin-left: 2rem;
+  border-left: 4px solid rgba(27, 27, 145, 0.495);
+}
+
+.commentaire-box-3 {
+  margin-left: 3rem;
+  border-left: 4px solid rgba(27, 27, 145, 0.495);
 }
 
 .commentaire {
   padding: 1rem 15px;
-  border-top: 1px solid rgba(0, 0, 0, 0.171);
 }
 
 .flex {
@@ -327,10 +359,6 @@ export default {
   margin-top: 1.5rem;
 }
 
-.bottom-bar {
-  border-top: 1px solid rgba(0, 0, 0, 0.171);
-}
-
 .bottom-bar-content {
   padding: 0.2rem 15px;
   display: flex;
@@ -349,14 +377,15 @@ export default {
   padding: 5px;
   opacity: 0.75;
   margin-right: 10px;
+  background-color: transparent;
   &:hover {
-    background-color: #f0f3fd;
+    background-color: transparent;
     opacity: 1;
   }
 }
 
 .flex.boxBtn.active {
-  background-color: #f0f3fd;
+  background-color: transparent;
   opacity: 1;
 }
 
@@ -373,31 +402,30 @@ button {
   }
 }
 
-  .showComment {
-    height: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-  }
+.showComment {
+  height: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
 
-  .arrow{
-    font-size: 25px;
-    margin-right: 8px;
-    margin-bottom: 8px;
-  }
+.arrow {
+  font-size: 25px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
 
-  .text-inline {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    line-height: 25px;
-    cursor: pointer;
-  }
+.text-inline {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  line-height: 25px;
+  cursor: pointer;
+}
 
-  .close{
-    transform: rotate(-90deg);
-    margin-bottom: 3px;
-    margin-right: 15px;
-  }
-
+.close {
+  transform: rotate(-90deg);
+  margin-bottom: 3px;
+  margin-right: 15px;
+}
 </style>

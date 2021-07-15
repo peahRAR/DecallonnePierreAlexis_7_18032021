@@ -12,8 +12,9 @@ module.exports = (sequelize, DataTypes) => {
 
       models.Message.belongsTo(models.Message, {
         as: 'message',
-        foreignKey: 'userId',
-        targetKey: 'id'
+        foreignKey: 'idParent',
+        targetKey: 'id',
+        onDelete: 'CASCADE'
       })
 
       models.Message.hasMany(models.Like, {
@@ -31,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
     idParent: DataTypes.INTEGER,
     content: DataTypes.STRING,
     attachement: DataTypes.STRING,
+    isDelete: DataTypes.BOOLEAN,
     tags: {
       type: DataTypes.JSON,
       allowNull: true,

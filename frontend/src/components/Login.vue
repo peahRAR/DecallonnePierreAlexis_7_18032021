@@ -45,23 +45,32 @@ export default {
   },
   methods: {
     async signIn() {
-      const request = new Request(`http://${process.env.VUE_APP_URL_BDD}/v1/users/login`, {
-        method: "POST",
-        mode: "cors",
-        cache: "default",
-        body: JSON.stringify(this.user),
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const request = new Request(
+        `http://${process.env.VUE_APP_URL_BDD}/v1/users/login`,
+        {
+          method: "POST",
+          mode: "cors",
+          cache: "default",
+          body: JSON.stringify(this.user),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return fetch(request).then((response) => {
+        const jsonResponse = response.json();
+
+        if (response.status === 200) {
+          jsonResponse.then((result) => {
+            const data = result;
+            this.data = data;
+
+            // Gerer dans le back pour que le token soit retourner avec sa date d expiraiton
+            localStorage.setItem("token", JSON.stringify(data));
+            document.location.href = "/";
+          });
+        }
       });
-
-      const res = await fetch(request);
-      const data = await res.json();
-      this.data = data;
-
-      // Gerer dans le back pour que le token soit retourner avec sa date d expiraiton
-      localStorage.setItem('token', JSON.stringify(data));
-      document.location.href="/"
     },
   },
 };

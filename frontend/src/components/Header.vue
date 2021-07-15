@@ -2,14 +2,14 @@
   <div class="header container-fluid">
     <div class="container-fluid">
       <div class="row">
-        <div class="logo-box col-xs-3">
+        <div class="logo-box col-xs-3" v-on:click.prevent="goToHome">
           <img
             class="logo-large"
             src="~@/assets/images/logo/logoInlineWhite.svg"
             alt="Logo large"
           />
           <img
-            class="logo-light "
+            class="logo-light"
             src="~@/assets/images/logo/iconWhite.svg"
             alt="Logo large"
           />
@@ -18,7 +18,8 @@
           <SearchBarUser />
         </div>
         <div class="nav col-xs-1 flex-right">
-          <NavBar />
+          <NavBar 
+          :userInfo="userInfo"/>
         </div>
       </div>
     </div>
@@ -28,15 +29,23 @@
 <script>
 // Imports
 import SearchBarUser from "@/components/SearchBarUser.vue";
-import NavBar from "@/components/NavBar.vue"
+import NavBar from "@/components/NavBar.vue";
 
 export default {
-  name: 'Header',
-  components : {
+  name: "Header",
+  components: {
     SearchBarUser,
-    NavBar
-  }
-}
+    NavBar,
+  },
+  props: {
+    userInfo: Object,
+  },
+  methods: {
+    goToHome: function (){
+      document.location.href = "/";
+    }
+  },
+};
 </script>
 
 
@@ -49,38 +58,37 @@ export default {
   z-index: 3;
 }
 
-.flex-right{
+.flex-right {
   display: flex;
   margin: auto;
   margin-right: 0;
 }
 
-
 .container {
   height: 100%;
 }
 
-.logo-box{
-    display: flex;
+.logo-box {
+  display: flex;
+  cursor: pointer;
 }
 
 .logo-light {
   display: none;
 }
 
-.logo-large{
-    width: 100%;
-    height: 2.3rem;
-    margin:  auto 0;
-    margin-left: 1rem;
-    max-width: 240px;
-    transform: scale(0.85);
+.logo-large {
+  width: 100%;
+  height: 2.3rem;
+  margin: auto 0;
+  margin-left: 1rem;
+  max-width: 240px;
+  transform: scale(0.85);
 }
 
-.searchBar{
+.searchBar {
   display: flex;
 }
-
 
 @media only screen and (max-width: 700px) {
   .logo-large {

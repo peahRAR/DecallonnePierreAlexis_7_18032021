@@ -1,5 +1,7 @@
 // Imports
 const models = require('../models');
+const message = require('../models/message');
+const user = require('../models/user');
 
 function pathOfFile(req) {
     if (req.file != undefined) {
@@ -55,16 +57,18 @@ module.exports = {
         let attributes = null;
         let where = null;
 
+
+
         if (filter === "post") {
             order = [(order != null) ? order.split(':') : ['updatedAt', 'DESC']]
             attributes= (fields !== '*' && fields != null) ? fields.split(',') : null
-            where = { idParent: null }
-            
+            where = { [Op.and] :[{ idParent: null}, {isDelete: false }]}
         }
+        
         else if (filter === "comment") {
             order = [(order != null) ? order.split(':') : ['updatedAt', 'ASC']]
             attributes= (fields !== '*' && fields != null) ? fields.split(',') : null
-            where = { idParent: idParent }
+            where = { [Op.and] :[{ idParent: idParent}, {isDelete: false }]}
         }
 
         models.Message.findAll({
@@ -76,7 +80,7 @@ module.exports = {
             include: [{
                 model: models.User,
                 attributes: ['username'],
-                
+                where: {isInactive: false}
             },'like']
             
         }).then(function (messages) {
@@ -115,6 +119,8 @@ module.exports = {
                         createAt: message.createAt,
                         updatedAt: message.updatedAt,
                         user: message.User.username,
+                        userId: message.userId,
+                        isDelete : message.isDelete,
                         // Compteur like & Dislike
                         advices: {
                             nbLike: nbLike,
@@ -169,16 +175,28 @@ module.exports = {
     },
 
     // DELETE
-    deleteMessage: function (req, res) {
-        let id = req.params.id;
-        models.Message.destroy({
-            where: { id: id }
-        }).then(() => {
-            res.sendStatus(204);
-        }).catch(function (err) {
-            console.log(err);
-            res.status((500)).json({ 'error': 'cannot delete this message' })
-        })
+    deleteMessage: async function (req, res) {
+        try {
+            const message = await models.Message.findOne({ where: { "id": req.params.id } });
+            if (!message) {
+                res.status(404).json({ "error": "Message introuvable" })
+            }
+
+            message.isDelete = true
+
+            await message.save()
+                .then(() => {
+                    res.status(204).json({ message: 'Message supprimé' })
+                })
+                .catch((error) => {
+                    console.log(error);
+                    res.status(400).json({ error })
+                })
+
+        } catch (error) {
+            console.log(error);
+        }
+
     }
 }
 
